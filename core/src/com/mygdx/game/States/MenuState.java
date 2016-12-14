@@ -70,7 +70,7 @@ public class MenuState extends State {
     protected void handleInput() {
 
         if (playButton.isPressed()) {
-            gsm.set(new PlayState(gsm));
+            gsm.set(new PlayState(gsm, 3));
         }
         if (selectTeamButton.isPressed()) {
             gsm.set(new TeamSelectState(gsm));

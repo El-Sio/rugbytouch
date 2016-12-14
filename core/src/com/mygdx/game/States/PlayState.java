@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
@@ -25,10 +26,17 @@ public class PlayState extends State {
     private Array<EnnemyPlayer> teamB;
     private static final int PLAYERCOUNT = 4;
     private Texture background;
+    private int LIVES;
+    private Array<Texture> lifeArray;
 
-    public PlayState(GameStateManager gsm) {
+    public PlayState(GameStateManager gsm,int lives) {
 
         super(gsm);
+        LIVES = lives;
+        lifeArray = new Array<Texture>(LIVES);
+        for(int i = 0; i<=LIVES; i++) {
+            lifeArray.add(new Texture("ball.png"));
+        }
         cam.setToOrtho(false, rugbytouch.WIDTH, rugbytouch.HEIGHT);
         background = new Texture("terrain.png");
         teamA = new Array<Player>(PLAYERCOUNT);
@@ -45,6 +53,7 @@ public class PlayState extends State {
 
     @Override
     protected void handleInput() {
+
         if(Gdx.input.justTouched()) {
             if(rugbytouch.Paused) {
 
@@ -91,7 +100,8 @@ public class PlayState extends State {
                     System.out.println("essai !");
                     if(rugbytouch.rugbysave.getBoolean("FxOn"))
                         teamA.get(i).essaiSound.play();
-                    gsm.set(new PlayState(gsm));
+                    if(LIVES<3) {LIVES++;}
+                    gsm.set(new PlayState(gsm, LIVES));
                 }
                 if (i != PLAYERCOUNT) {
                     teamB.get(i).update(dt);
@@ -113,7 +123,13 @@ public class PlayState extends State {
                             if (rugbytouch.rugbysave.getBoolean("FxOn"))
                                 teamA.get(i).plaquedSound.play();
                             teamA.get(i).plaqued = true;
-                            gsm.set(new PlayState(gsm));
+                            LIVES--;
+                            if(LIVES == 0) {
+                                gsm.set(new MenuState(gsm));
+                            }
+                            if(LIVES >0) {
+                                gsm.set(new PlayState(gsm, LIVES));
+                            }
                         }
                     }
                 }
@@ -124,7 +140,13 @@ public class PlayState extends State {
             cam.position.y = ball.getPosition().y;
             if (ball.dead) {
 
-                gsm.set(new PlayState(gsm));
+                LIVES --;
+                if(LIVES == 0) {
+                    gsm.set(new MenuState(gsm));
+                }
+                if(LIVES >0) {
+                    gsm.set(new PlayState(gsm, LIVES));
+                }
             }
             cam.update();
         }
@@ -136,13 +158,16 @@ public class PlayState extends State {
         sb.setProjectionMatrix(cam.combined);
         sb.begin();
         sb.draw(background,0,0);
-        sb.draw(ball.getTexture(), ball.getPosition().x, ball.getPosition().y);
+        for (int i=0; i<=LIVES; i++) {
+            sb.draw(lifeArray.get(i), cam.position.x + cam.viewportWidth/2 - 42*i, cam.position.y - cam.viewportHeight/2);
+        }
         for(int i = 0; i<=PLAYERCOUNT; i++) {
             sb.draw(teamA.get(i).getTexture(), teamA.get(i).getPosition().x, teamA.get(i).getPosition().y);
             if(i!=PLAYERCOUNT) {
                 sb.draw(teamB.get(i).getTexture(), teamB.get(i).getPosition().x, teamB.get(i).getPosition().y);
             }
         }
+        sb.draw(ball.getTexture(), ball.getPosition().x, ball.getPosition().y);
         sb.end();
     }
 
@@ -157,6 +182,10 @@ public class PlayState extends State {
         }
         ball.dispose();
         background.dispose();
+
+        for(int i = 0; i<=LIVES-1; i++) {
+            lifeArray.get(i).dispose();
+        }
 
     }
 }

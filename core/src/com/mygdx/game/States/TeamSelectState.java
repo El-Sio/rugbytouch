@@ -111,6 +111,8 @@ public class TeamSelectState extends State {
 
         if(selectButton.isPressed()) {
             gsm.set(new MenuState(gsm));
+            rugbytouch.rugbysave.putInteger("team", current);
+            rugbytouch.rugbysave.flush();
         }
     }
 
