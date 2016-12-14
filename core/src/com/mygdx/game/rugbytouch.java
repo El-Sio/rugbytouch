@@ -30,6 +30,8 @@ public class rugbytouch extends ApplicationAdapter {
 	@Override
 	public void create () {
 
+		musicOn = true;
+		fxOn = true;
 		rugbysave = Gdx.app.getPreferences("My Preferences");
 		HighScore = rugbysave.getInteger("Highscore");
 		rugbysave.flush();
@@ -39,13 +41,11 @@ public class rugbytouch extends ApplicationAdapter {
 		rugbysave.flush();
 		gsm = new GameStateManager();
 		batch = new SpriteBatch();
-		musicOn = true;
-		fxOn = true;
 		Paused = false;
-		//music = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
-		//music.setLooping(true);
-		//music.setVolume(0.1f);
-		//if(musicOn) {music.play();};
+		music = Gdx.audio.newMusic(Gdx.files.internal("Lapitchuri.mp3"));
+		music.setLooping(true);
+		music.setVolume(0.1f);
+		if(musicOn) {music.play();};
 		gsm.push(new MenuState(gsm));
 	}
 

@@ -19,7 +19,7 @@ import com.mygdx.game.rugbytouch;
  * Created by charl on 11/12/2016.
  */
 
-public class MenuState extends State{
+public class MenuState extends State {
 
     private Texture background;
     private Image bgImage;
@@ -35,8 +35,7 @@ public class MenuState extends State{
     private Stage menuStage;
 
 
-
-    public MenuState(final GameStateManager gsm) {
+    public MenuState(GameStateManager gsm) {
         super(gsm);
         view = new FitViewport(rugbytouch.WIDTH, rugbytouch.HEIGHT, cam);
         background = new Texture("terrain.png");
@@ -44,17 +43,20 @@ public class MenuState extends State{
         bgImage = new Image(bgdrawable);
 
         playButtonImg = new Texture("jouer.png");
-        Drawable playdrawable =  new TextureRegionDrawable(new TextureRegion(playButtonImg));
+        Drawable playdrawable = new TextureRegionDrawable(new TextureRegion(playButtonImg));
         playButton = new ImageButton(playdrawable);
         ImageButton.ImageButtonStyle playStyle = new ImageButton.ImageButtonStyle();
+        playButton.setChecked(false);
 
         optionButtonImg = new Texture("Option.png");
         Drawable opdrawable = new TextureRegionDrawable(new TextureRegion(optionButtonImg));
         optionButton = new ImageButton(opdrawable);
+        optionButton.setChecked(false);
 
         selectTeamButtonImg = new Texture("Equipe.png");
         Drawable eqdrawable = new TextureRegionDrawable(new TextureRegion(selectTeamButtonImg));
         selectTeamButton = new ImageButton(eqdrawable);
+        selectTeamButton.setChecked(false);
 
         menuStage = new Stage(view);
         menuStage.addActor(bgImage);
@@ -62,49 +64,23 @@ public class MenuState extends State{
         menuStage.addActor(selectTeamButton);
         menuStage.addActor(optionButton);
         Gdx.input.setInputProcessor(menuStage);
-
-
-        selectTeamButton.addListener(new InputListener() {
-            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("Select Team button pressed");
-                return true;
-            }
-
-            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("Select Team button released");
-                gsm.set(new TeamSelectState(gsm));
-            }
-        });
-
-        optionButton.addListener(new InputListener() {
-            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("Options button pressed");
-                return true;
-            }
-
-            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("Options button released");
-                //gsm.set(new OptionState(gsm));
-            }
-        });
-
-        playButton.addListener(new InputListener() {
-            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("play button pressed");
-                return true;
-            }
-
-            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("play button released");
-                gsm.set(new PlayState(gsm));
-            }
-        });
     }
 
     @Override
     protected void handleInput() {
 
+        if (playButton.isPressed()) {
+            gsm.set(new PlayState(gsm));
+        }
+        if (selectTeamButton.isPressed()) {
+            gsm.set(new TeamSelectState(gsm));
+        }
+        if(optionButton.isPressed()) {
+            gsm.set(new OptionState(gsm));
+        }
+
     }
+
 
     @Override
     public void update(float dt) {

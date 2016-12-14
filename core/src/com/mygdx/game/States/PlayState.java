@@ -1,6 +1,7 @@
 package com.mygdx.game.States;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
@@ -45,15 +46,33 @@ public class PlayState extends State {
     @Override
     protected void handleInput() {
         if(Gdx.input.justTouched()) {
-            for(int i  = 0; i<=PLAYERCOUNT; i++)
-            {
-                if(teamA.get(i).hasBall)
+            if(rugbytouch.Paused) {
+
+                rugbytouch.Paused = false;
+                System.out.println("unpaused");
+
+                for(int i  = 0; i<=PLAYERCOUNT; i++)
                 {
-                    teamA.get(i).setBounds(new Rectangle(0,0,0,0));
-                    teamA.get(i).hasBall = false;
-                    if(!teamA.get(i).plaqued)
-                    {
-                        ball.pass();
+                    if(teamA.get(i).hasBall) {
+                        teamA.get(i).setBounds(new Rectangle(0,0,0,0));
+                        teamA.get(i).hasBall = false;
+                        if(!teamA.get(i).plaqued)
+                        {
+                            ball.pass();
+                        }
+                    }
+                }
+            }
+            else {
+                for(int i  = 0; i<=PLAYERCOUNT; i++)
+                {
+                    if(teamA.get(i).hasBall) {
+                        teamA.get(i).setBounds(new Rectangle(0,0,0,0));
+                        teamA.get(i).hasBall = false;
+                        if(!teamA.get(i).plaqued)
+                        {
+                            ball.pass();
+                        }
                     }
                 }
             }
@@ -64,43 +83,51 @@ public class PlayState extends State {
     public void update(float dt) {
         handleInput();
 
-        for(int i = 0; i<=PLAYERCOUNT; i++) {
-            teamA.get(i).update(dt);
-            if(teamA.get(i).getPosition().y > rugbytouch.HEIGHT - teamA.get(i).getTexture().getRegionHeight() && teamA.get(i).hasBall)
-            {
-                System.out.println("essai !");
-                gsm.set(new PlayState(gsm));
-            }
-            if(i!=PLAYERCOUNT) {teamB.get(i).update(dt);}
-            if(teamA.get(i).collide(ball.getBounds())) {
-                teamA.get(i).hasBall = true;
-                ball.setPosition(new Vector3(teamA.get(i).getPosition().x + teamA.get(i).getTexture().getRegionWidth() /2, teamA.get(i).getPosition().y + teamA.get(i).getTexture().getRegionHeight() /2, 0));
-                ball.setMOVEMENT(0);
-                ball.setGRAVITY(0);
-                ball.setVelocity(new Vector3(0,0,0));
-            }
-            if(i!=PLAYERCOUNT) {
-                if (teamA.get(i).collide(teamB.get(i).getBounds())) {
-                    teamA.get(i).setMOVEMENT(0);
-                    teamA.get(i).setVelocity(new Vector3(0, 0, 0));
-                    teamB.get(i).setMOVEMENT(0);
-                    if (teamA.get(i).hasBall) {
-                        System.out.println("plaqué !");
-                        teamA.get(i).plaqued = true;
-                        gsm.set(new PlayState(gsm));
+        if(!rugbytouch.Paused) {
+
+            for (int i = 0; i <= PLAYERCOUNT; i++) {
+                teamA.get(i).update(dt);
+                if (teamA.get(i).getPosition().y > rugbytouch.HEIGHT - teamA.get(i).getTexture().getRegionHeight() && teamA.get(i).hasBall) {
+                    System.out.println("essai !");
+                    if(rugbytouch.rugbysave.getBoolean("FxOn"))
+                        teamA.get(i).essaiSound.play();
+                    gsm.set(new PlayState(gsm));
+                }
+                if (i != PLAYERCOUNT) {
+                    teamB.get(i).update(dt);
+                }
+                if (teamA.get(i).collide(ball.getBounds())) {
+                    teamA.get(i).hasBall = true;
+                    ball.setPosition(new Vector3(teamA.get(i).getPosition().x + teamA.get(i).getTexture().getRegionWidth() / 2, teamA.get(i).getPosition().y + teamA.get(i).getTexture().getRegionHeight() / 2, 0));
+                    ball.setMOVEMENT(0);
+                    ball.setGRAVITY(0);
+                    ball.setVelocity(new Vector3(0, 0, 0));
+                }
+                if (i != PLAYERCOUNT) {
+                    if (teamA.get(i).collide(teamB.get(i).getBounds())) {
+                        teamA.get(i).setMOVEMENT(0);
+                        teamA.get(i).setVelocity(new Vector3(0, 0, 0));
+                        teamB.get(i).setMOVEMENT(0);
+                        if (teamA.get(i).hasBall) {
+                            System.out.println("plaqué !");
+                            if (rugbytouch.rugbysave.getBoolean("FxOn"))
+                                teamA.get(i).plaquedSound.play();
+                            teamA.get(i).plaqued = true;
+                            gsm.set(new PlayState(gsm));
+                        }
                     }
                 }
             }
-        }
 
-        ball.update(dt);
-        cam.position.x = ball.getPosition().x;
-        cam.position.y = ball.getPosition().y;
-        if(ball.dead) {
+            ball.update(dt);
+            cam.position.x = ball.getPosition().x;
+            cam.position.y = ball.getPosition().y;
+            if (ball.dead) {
 
-            gsm.set(new PlayState(gsm));
+                gsm.set(new PlayState(gsm));
+            }
+            cam.update();
         }
-        cam.update();
     }
 
     @Override

@@ -37,7 +37,7 @@ public class TeamSelectState extends State {
     private ImageButton selectButton;
     private Texture selectButtonImg;
 
-    public TeamSelectState(final GameStateManager gsm) {
+    public TeamSelectState(GameStateManager gsm) {
         super(gsm);
         teamList = new Array<Texture>();
         for (int i=0; i<=2; i++) {
@@ -66,6 +66,7 @@ public class TeamSelectState extends State {
         nextButton = new ImageButton(nextdrawable);
         previousButton =  new ImageButton(prevdrawable);
         selectButton = new ImageButton(selectdrawable);
+        selectButton.setChecked(false);
 
         teamSelectStage = new Stage(view);
         teamSelectStage.addActor(bgImage);
@@ -103,25 +104,14 @@ public class TeamSelectState extends State {
             }
         });
 
-        selectButton.addListener(new InputListener() {
-            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("Select button pressed");
-                return true;
-            }
-
-            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("Select button released");
-                rugbytouch.rugbysave.putInteger("team", current);
-                rugbytouch.rugbysave.flush();
-                gsm.set(new MenuState(gsm));
-            }
-        });
-
     }
 
     @Override
     protected void handleInput() {
 
+        if(selectButton.isPressed()) {
+            gsm.set(new MenuState(gsm));
+        }
     }
 
     @Override

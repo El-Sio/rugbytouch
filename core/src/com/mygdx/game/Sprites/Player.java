@@ -1,5 +1,6 @@
 package com.mygdx.game.Sprites;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -23,6 +24,8 @@ public class Player {
 
     public boolean hasBall;
     public boolean plaqued;
+    public Sound plaquedSound;
+    public Sound essaiSound;
 
     public void setMOVEMENT(int MOVEMENT) {
         this.MOVEMENT = MOVEMENT;
@@ -49,6 +52,10 @@ public class Player {
     public Player(int x, int y) {
         position = new Vector3(x,y,0);
         velocity = new Vector3(0,0,0);
+        essaiSound = Gdx.audio.newSound(Gdx.files.internal("essai.wav"));
+        essaiSound.setVolume(0,5f);
+        plaquedSound = Gdx.audio.newSound(Gdx.files.internal("plaqued.wav"));
+        plaquedSound.setVolume(0,5f);
         int i = rugbytouch.rugbysave.getInteger("team");
         texture = new Texture("player["+i+"].png");
         bounds = new Rectangle(x, y, texture.getWidth(), texture.getHeight());

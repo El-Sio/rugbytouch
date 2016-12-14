@@ -68,7 +68,8 @@ public class Ball {
 
     public void pass() {
 
-        passSound.play(0.5f);
+        if(rugbytouch.rugbysave.getBoolean("FxOn"))
+            passSound.play(0.5f);
         velocity.y = 100;
         this.setGRAVITY(-15);
         this.setMOVEMENT(150);
