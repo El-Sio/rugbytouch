@@ -16,21 +16,28 @@ public class EnnemyPlayer {
     private Vector3 velocity;
     private Vector3 position;
     private int MOVEMENT = -50;
+    private boolean VISIBLE;
 
     public static boolean hasBall;
 
     private Rectangle bounds;
 
-    public EnnemyPlayer(int x, int y) {
+    public EnnemyPlayer(int x, int y, boolean visible) {
         position = new Vector3(x,y,0);
         velocity = new Vector3(0,0,0);
         int i = rugbytouch.rugbysave.getInteger("team");
-        if(i<1)
-           playerImg = new Texture("player["+(i+1)+"].png");
-        else
-            playerImg = new Texture("player["+(i-1)+"].png");
+        if(visible) {
+            if (i < 1)
+                playerImg = new Texture("player[" + (i + 1) + "].png");
+            else
+                playerImg = new Texture("player[" + (i - 1) + "].png");
 
-        bounds = new Rectangle(x, y, playerImg.getWidth(), playerImg.getHeight());
+            bounds = new Rectangle(x, y, playerImg.getWidth(), playerImg.getHeight());
+        }
+        if(!visible) {
+            playerImg = new Texture("vide.png");
+            bounds = new Rectangle(0,0,0,0);
+        }
     }
 
     public boolean collide(Rectangle ball) {

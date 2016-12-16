@@ -13,6 +13,8 @@ import com.mygdx.game.Sprites.EnnemyPlayer;
 import com.mygdx.game.Sprites.Player;
 import com.mygdx.game.rugbytouch;
 
+import java.util.Random;
+
 import static sun.audio.AudioPlayer.player;
 
 /**
@@ -27,12 +29,17 @@ public class PlayState extends State {
     private static final int PLAYERCOUNT = 4;
     private Texture background;
     private int LIVES;
+//    private int LEVEL;
+    private Random rand;
+    private int position;
     private Array<Texture> lifeArray;
 
     public PlayState(GameStateManager gsm,int lives) {
 
         super(gsm);
         LIVES = lives;
+        rand = new Random();
+        position = rand.nextInt(PLAYERCOUNT+1);
         lifeArray = new Array<Texture>(LIVES);
         for(int i = 0; i<=LIVES; i++) {
             lifeArray.add(new Texture("ball.png"));
@@ -44,8 +51,12 @@ public class PlayState extends State {
         for(int i=0; i<=PLAYERCOUNT; i++) {
             teamA.add(new Player(100*(i+1), 300 - (i+1)*100 ));
             teamA.get(i).hasBall = false;
-            if(i!=PLAYERCOUNT) {
-            teamB.add(new EnnemyPlayer(100*(i+1), 700));}
+            if(i!=position) {
+                teamB.add(new EnnemyPlayer(100*(i+1), 700, true));
+            }
+            if(i==position) {
+                teamB.add(new EnnemyPlayer(100*(i+1), 700, false));
+            }
         }
 
         ball = new Ball(100,400);
@@ -103,9 +114,8 @@ public class PlayState extends State {
                     if(LIVES<3) {LIVES++;}
                     gsm.set(new PlayState(gsm, LIVES));
                 }
-                if (i != PLAYERCOUNT) {
-                    teamB.get(i).update(dt);
-                }
+                teamB.get(i).update(dt);
+
                 if (teamA.get(i).collide(ball.getBounds())) {
                     teamA.get(i).hasBall = true;
                     ball.setPosition(new Vector3(teamA.get(i).getPosition().x + teamA.get(i).getTexture().getRegionWidth() / 2, teamA.get(i).getPosition().y + teamA.get(i).getTexture().getRegionHeight() / 2, 0));
@@ -113,7 +123,6 @@ public class PlayState extends State {
                     ball.setGRAVITY(0);
                     ball.setVelocity(new Vector3(0, 0, 0));
                 }
-                if (i != PLAYERCOUNT) {
                     if (teamA.get(i).collide(teamB.get(i).getBounds())) {
                         teamA.get(i).setMOVEMENT(0);
                         teamA.get(i).setVelocity(new Vector3(0, 0, 0));
@@ -132,7 +141,6 @@ public class PlayState extends State {
                             }
                         }
                     }
-                }
             }
 
             ball.update(dt);
@@ -163,9 +171,7 @@ public class PlayState extends State {
         }
         for(int i = 0; i<=PLAYERCOUNT; i++) {
             sb.draw(teamA.get(i).getTexture(), teamA.get(i).getPosition().x, teamA.get(i).getPosition().y);
-            if(i!=PLAYERCOUNT) {
-                sb.draw(teamB.get(i).getTexture(), teamB.get(i).getPosition().x, teamB.get(i).getPosition().y);
-            }
+            sb.draw(teamB.get(i).getTexture(), teamB.get(i).getPosition().x, teamB.get(i).getPosition().y);
         }
         sb.draw(ball.getTexture(), ball.getPosition().x, ball.getPosition().y);
         sb.end();
@@ -176,9 +182,7 @@ public class PlayState extends State {
 
         for(int i = 0; i<=PLAYERCOUNT; i++) {
             teamA.get(i).dispose();
-            if(i!=PLAYERCOUNT) {
-                teamB.get(i).dispose();
-            }
+            teamB.get(i).dispose();
         }
         ball.dispose();
         background.dispose();
