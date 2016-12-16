@@ -65,8 +65,10 @@ public class Player {
 
     public void update(float dt) {
 
-        position.add(0,MOVEMENT*dt,0);
-        if(position.y>rugbytouch.HEIGHT - texture.getHeight()) {
+        velocity.scl(dt);
+        position.add(0,MOVEMENT*dt + velocity.y,0);
+        velocity.scl(1/dt);
+        if(position.y>rugbytouch.HEIGHT) {
             this.setMOVEMENT(0);
         }
         bounds.setPosition(position.x, position.y);
@@ -77,6 +79,7 @@ public class Player {
     }
 
     public void charge() {
+        velocity.y = 100;
     }
 
     public Vector3 getPosition() {

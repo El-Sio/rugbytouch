@@ -1,11 +1,11 @@
 package com.mygdx.game.States;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.game.Sprites.Ball;
@@ -15,13 +15,11 @@ import com.mygdx.game.rugbytouch;
 
 import java.util.Random;
 
-import static sun.audio.AudioPlayer.player;
-
 /**
  * Created by charl on 11/12/2016.
  */
 
-public class PlayState extends State {
+public class PlayState extends State implements GestureDetector.GestureListener {
 
     private Ball ball;
     private Array<Player> teamA;
@@ -60,43 +58,14 @@ public class PlayState extends State {
         }
 
         ball = new Ball(100,400);
+        GestureDetector gd = new GestureDetector(this);
+        gd.setLongPressSeconds(0.1f);
+        Gdx.input.setInputProcessor(gd);
     }
 
     @Override
     protected void handleInput() {
 
-        if(Gdx.input.justTouched()) {
-            if(rugbytouch.Paused) {
-
-                rugbytouch.Paused = false;
-                System.out.println("unpaused");
-
-                for(int i  = 0; i<=PLAYERCOUNT; i++)
-                {
-                    if(teamA.get(i).hasBall) {
-                        teamA.get(i).setBounds(new Rectangle(0,0,0,0));
-                        teamA.get(i).hasBall = false;
-                        if(!teamA.get(i).plaqued)
-                        {
-                            ball.pass();
-                        }
-                    }
-                }
-            }
-            else {
-                for(int i  = 0; i<=PLAYERCOUNT; i++)
-                {
-                    if(teamA.get(i).hasBall) {
-                        teamA.get(i).setBounds(new Rectangle(0,0,0,0));
-                        teamA.get(i).hasBall = false;
-                        if(!teamA.get(i).plaqued)
-                        {
-                            ball.pass();
-                        }
-                    }
-                }
-            }
-        }
     }
 
     @Override
@@ -107,7 +76,7 @@ public class PlayState extends State {
 
             for (int i = 0; i <= PLAYERCOUNT; i++) {
                 teamA.get(i).update(dt);
-                if (teamA.get(i).getPosition().y > rugbytouch.HEIGHT - teamA.get(i).getTexture().getRegionHeight() && teamA.get(i).hasBall) {
+                if (teamA.get(i).getPosition().y > rugbytouch.HEIGHT && teamA.get(i).hasBall) {
                     System.out.println("essai !");
                     if(rugbytouch.rugbysave.getBoolean("FxOn"))
                         teamA.get(i).essaiSound.play();
@@ -190,6 +159,91 @@ public class PlayState extends State {
         for(int i = 0; i<=LIVES-1; i++) {
             lifeArray.get(i).dispose();
         }
+
+    }
+
+    @Override
+    public boolean touchDown(float x, float y, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean tap(float x, float y, int count, int button) {
+
+        if(rugbytouch.Paused) {
+
+            rugbytouch.Paused = false;
+            System.out.println("unpaused");
+
+            for(int i  = 0; i<=PLAYERCOUNT; i++)
+            {
+                if(teamA.get(i).hasBall) {
+                    teamA.get(i).setBounds(new Rectangle(0,0,0,0));
+                    teamA.get(i).hasBall = false;
+                    if(!teamA.get(i).plaqued)
+                    {
+                        ball.pass();
+                    }
+                }
+            }
+        }
+        else {
+            for(int i  = 0; i<=PLAYERCOUNT; i++)
+            {
+                if(teamA.get(i).hasBall) {
+                    teamA.get(i).setBounds(new Rectangle(0,0,0,0));
+                    teamA.get(i).hasBall = false;
+                    if(!teamA.get(i).plaqued)
+                    {
+                        ball.pass();
+                    }
+                }
+            }
+        }
+
+
+
+        return false;
+    }
+
+    @Override
+    public boolean longPress(float x, float y) {
+
+        for(int i=0; i<=PLAYERCOUNT; i++) {
+            if(teamA.get(i).hasBall) {
+                teamA.get(i).charge();
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean fling(float velocityX, float velocityY, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean pan(float x, float y, float deltaX, float deltaY) {
+        return false;
+    }
+
+    @Override
+    public boolean panStop(float x, float y, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean zoom(float initialDistance, float distance) {
+        return false;
+    }
+
+    @Override
+    public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
+        return false;
+    }
+
+    @Override
+    public void pinchStop() {
 
     }
 }
