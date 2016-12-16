@@ -59,7 +59,6 @@ public class PlayState extends State implements GestureDetector.GestureListener 
 
         ball = new Ball(100,400);
         GestureDetector gd = new GestureDetector(this);
-        gd.setLongPressSeconds(0.1f);
         Gdx.input.setInputProcessor(gd);
     }
 
@@ -170,6 +169,25 @@ public class PlayState extends State implements GestureDetector.GestureListener 
     @Override
     public boolean tap(float x, float y, int count, int button) {
 
+
+        for(int i=0; i<=PLAYERCOUNT; i++) {
+            if(teamA.get(i).hasBall) {
+                teamA.get(i).charge();
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean longPress(float x, float y) {
+        return false;
+    }
+
+    @Override
+    public boolean fling(float velocityX, float velocityY, int button) {
+
+
         if(rugbytouch.Paused) {
 
             rugbytouch.Paused = false;
@@ -203,22 +221,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
 
 
 
-        return false;
-    }
 
-    @Override
-    public boolean longPress(float x, float y) {
-
-        for(int i=0; i<=PLAYERCOUNT; i++) {
-            if(teamA.get(i).hasBall) {
-                teamA.get(i).charge();
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean fling(float velocityX, float velocityY, int button) {
         return false;
     }
 
