@@ -42,7 +42,7 @@ public class rugbytouch extends ApplicationAdapter {
 		gsm = new GameStateManager();
 		batch = new SpriteBatch();
 		Paused = false;
-		music = Gdx.audio.newMusic(Gdx.files.internal("Lapitchuri.mp3"));
+		music = Gdx.audio.newMusic(Gdx.files.internal("Lapitchuri_short.mp3"));
 		music.setLooping(true);
 		music.setVolume(0.1f);
 		if(musicOn) {music.play();};

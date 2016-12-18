@@ -96,6 +96,13 @@ public class PlayState extends State implements GestureDetector.GestureListener 
                     ball.setGRAVITY(0);
                     ball.setVelocity(new Vector3(0, 0, 0));
                 }
+
+                if(teamB.get(i).collide(ball.getBounds()))
+                {
+                    System.out.println("balle perdue");
+                    ball.dead = true;
+                }
+
                 if (teamA.get(i).collide(teamB.get(i).getBounds())) {
 /*                    teamA.get(i).setMOVEMENT(0);
                     teamA.get(i).setVelocity(new Vector3(0, 0, 0));
@@ -114,7 +121,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
                         }
                     }
                 }
-                if(!teamA.get(i).hasBall && teamA.get(i).getPosition().y > teamB.get(i).getPosition().y + teamB.get(i).getTexture().getRegionHeight() + 10 && i!=PLAYERCOUNT) {
+                if(!teamA.get(i).hasBall && teamA.get(i).getPosition().y > teamB.get(i).getPosition().y + teamB.get(i).getTexture().getRegionHeight() + 10 && i!=PLAYERCOUNT && i!=0) {
                     teamA.get(i).setBounds(new Rectangle(teamA.get(i).getPosition().x, teamA.get(i).getPosition().y, teamA.get(i).getTexture().getRegionWidth(), teamA.get(i).getTexture().getRegionHeight()));
                 }
             }
