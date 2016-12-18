@@ -27,6 +27,8 @@ public class Player {
     public Sound plaquedSound;
     public Sound essaiSound;
 
+    public boolean isCharging;
+
     public void setMOVEMENT(int MOVEMENT) {
         this.MOVEMENT = MOVEMENT;
     }
@@ -61,6 +63,7 @@ public class Player {
         bounds = new Rectangle(x, y, texture.getWidth(), texture.getHeight());
         hasBall = false;
         plaqued = false;
+        isCharging = false;
     }
 
     public void update(float dt) {
@@ -79,7 +82,15 @@ public class Player {
     }
 
     public void charge() {
-        velocity.y = 100;
+        if(!isCharging) {
+            isCharging = true;
+            velocity.y = 150;
+        }
+    }
+
+    public void slowdown() {
+        isCharging = false;
+        velocity.y = 0;
     }
 
     public Vector3 getPosition() {

@@ -27,7 +27,7 @@ public class EnnemyPlayer {
         velocity = new Vector3(0,0,0);
         int i = rugbytouch.rugbysave.getInteger("team");
         if(visible) {
-            if (i < 1)
+            if (i == 0)
                 playerImg = new Texture("player[" + (i + 1) + "].png");
             else
                 playerImg = new Texture("player[" + (i - 1) + "].png");

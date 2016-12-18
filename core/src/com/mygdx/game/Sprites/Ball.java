@@ -66,13 +66,24 @@ public class Ball {
         bounds.setPosition(position.x, position.y);
     }
 
-    public void pass() {
+    public void pass(boolean direction) {
 
         if(rugbytouch.rugbysave.getBoolean("FxOn"))
             passSound.play(0.5f);
-        velocity.y = 100;
-        this.setGRAVITY(-15);
-        this.setMOVEMENT(150);
+
+        if(direction) {
+            //pass right
+            velocity.y = (100);
+            this.setGRAVITY(-15);
+            this.setMOVEMENT(150);
+        }
+        if(!direction) {
+            //pass left, compensate for ball position not centered on player
+            velocity.y = (100);
+            this.setGRAVITY(-15);
+            this.setMOVEMENT(-200);
+        }
+
     }
 
     public Vector3 getPosition() {

@@ -82,33 +82,41 @@ public class PlayState extends State implements GestureDetector.GestureListener 
                     if(LIVES<3) {LIVES++;}
                     gsm.set(new PlayState(gsm, LIVES));
                 }
+
                 teamB.get(i).update(dt);
 
                 if (teamA.get(i).collide(ball.getBounds())) {
                     teamA.get(i).hasBall = true;
+                    if(i>0)
+                        teamA.get(i-1).hasBall = false;
+                    if(i<PLAYERCOUNT)
+                        teamA.get(i+1).hasBall = false;
                     ball.setPosition(new Vector3(teamA.get(i).getPosition().x + teamA.get(i).getTexture().getRegionWidth() / 2, teamA.get(i).getPosition().y + teamA.get(i).getTexture().getRegionHeight() / 2, 0));
                     ball.setMOVEMENT(0);
                     ball.setGRAVITY(0);
                     ball.setVelocity(new Vector3(0, 0, 0));
                 }
-                    if (teamA.get(i).collide(teamB.get(i).getBounds())) {
-                        teamA.get(i).setMOVEMENT(0);
-                        teamA.get(i).setVelocity(new Vector3(0, 0, 0));
-                        teamB.get(i).setMOVEMENT(0);
-                        if (teamA.get(i).hasBall) {
-                            System.out.println("plaqué !");
-                            if (rugbytouch.rugbysave.getBoolean("FxOn"))
-                                teamA.get(i).plaquedSound.play();
-                            teamA.get(i).plaqued = true;
-                            LIVES--;
-                            if(LIVES == 0) {
-                                gsm.set(new MenuState(gsm));
-                            }
-                            if(LIVES >0) {
-                                gsm.set(new PlayState(gsm, LIVES));
-                            }
+                if (teamA.get(i).collide(teamB.get(i).getBounds())) {
+/*                    teamA.get(i).setMOVEMENT(0);
+                    teamA.get(i).setVelocity(new Vector3(0, 0, 0));
+                    teamB.get(i).setMOVEMENT(0); */
+                    if (teamA.get(i).hasBall) {
+                        System.out.println("plaqué !");
+                        if (rugbytouch.rugbysave.getBoolean("FxOn"))
+                            teamA.get(i).plaquedSound.play();
+                        teamA.get(i).plaqued = true;
+                        LIVES--;
+                        if(LIVES == 0) {
+                            gsm.set(new MenuState(gsm));
+                        }
+                        if(LIVES >0) {
+                            gsm.set(new PlayState(gsm, LIVES));
                         }
                     }
+                }
+                if(!teamA.get(i).hasBall && teamA.get(i).getPosition().y > teamB.get(i).getPosition().y + teamB.get(i).getTexture().getRegionHeight() + 10 && i!=PLAYERCOUNT) {
+                    teamA.get(i).setBounds(new Rectangle(teamA.get(i).getPosition().x, teamA.get(i).getPosition().y, teamA.get(i).getTexture().getRegionWidth(), teamA.get(i).getTexture().getRegionHeight()));
+                }
             }
 
             ball.update(dt);
@@ -134,14 +142,17 @@ public class PlayState extends State implements GestureDetector.GestureListener 
         sb.setProjectionMatrix(cam.combined);
         sb.begin();
         sb.draw(background,0,0);
-        for (int i=0; i<=LIVES; i++) {
-            sb.draw(lifeArray.get(i), cam.position.x + cam.viewportWidth/2 - 42*i, cam.position.y - cam.viewportHeight/2);
-        }
+
         for(int i = 0; i<=PLAYERCOUNT; i++) {
             sb.draw(teamA.get(i).getTexture(), teamA.get(i).getPosition().x, teamA.get(i).getPosition().y);
             sb.draw(teamB.get(i).getTexture(), teamB.get(i).getPosition().x, teamB.get(i).getPosition().y);
         }
         sb.draw(ball.getTexture(), ball.getPosition().x, ball.getPosition().y);
+
+        for (int i=0; i<=LIVES; i++) {
+            sb.draw(lifeArray.get(i), cam.position.x + cam.viewportWidth/2 - 42*i, cam.position.y - cam.viewportHeight/2);
+        }
+
         sb.end();
     }
 
@@ -169,13 +180,32 @@ public class PlayState extends State implements GestureDetector.GestureListener 
     @Override
     public boolean tap(float x, float y, int count, int button) {
 
-
-        for(int i=0; i<=PLAYERCOUNT; i++) {
-            if(teamA.get(i).hasBall) {
-                teamA.get(i).charge();
+        if(rugbytouch.Paused) {
+            rugbytouch.Paused = false;
+            System.out.println("unpaused");
+            for (int i = 0; i <= PLAYERCOUNT; i++) {
+                if (teamA.get(i).hasBall) {
+                    if(!teamA.get(i).isCharging) {
+                        teamA.get(i).charge();
+                    }
+                    else {
+                        teamA.get(i).slowdown();
+                    }
+                }
             }
         }
-
+        else {
+            for (int i = 0; i <= PLAYERCOUNT; i++) {
+                if (teamA.get(i).hasBall) {
+                    if(!teamA.get(i).isCharging) {
+                        teamA.get(i).charge();
+                    }
+                    else {
+                        teamA.get(i).slowdown();
+                    }
+                }
+            }
+        }
         return false;
     }
 
@@ -187,40 +217,68 @@ public class PlayState extends State implements GestureDetector.GestureListener 
     @Override
     public boolean fling(float velocityX, float velocityY, int button) {
 
+        if(Math.abs(velocityX)>Math.abs(velocityY)) {
+            if (rugbytouch.Paused) {
 
-        if(rugbytouch.Paused) {
+                rugbytouch.Paused = false;
+                System.out.println("unpaused");
 
-            rugbytouch.Paused = false;
-            System.out.println("unpaused");
-
-            for(int i  = 0; i<=PLAYERCOUNT; i++)
-            {
-                if(teamA.get(i).hasBall) {
-                    teamA.get(i).setBounds(new Rectangle(0,0,0,0));
-                    teamA.get(i).hasBall = false;
-                    if(!teamA.get(i).plaqued)
-                    {
-                        ball.pass();
+                for (int i = 0; i <= PLAYERCOUNT; i++) {
+                    //Pass only if not charging
+                    if (teamA.get(i).hasBall && !teamA.get(i).isCharging) {
+                        teamA.get(i).setBounds(new Rectangle(0, 0, 0, 0));
+                        if (!teamA.get(i).plaqued) {
+                            if(velocityX>0) {
+                                if(i==PLAYERCOUNT)
+                                    teamA.get(i).hasBall = false;
+                                ball.pass(true);
+                                if(i==0)
+                                    teamA.get(i).hasBall = false;
+                            }
+                            else if(velocityX<0) {
+                                if(i==PLAYERCOUNT)
+                                    teamA.get(i).hasBall = false;
+                                ball.pass(false);
+                                if(i==0)
+                                    teamA.get(i).hasBall = false;
+                            }
+                            else {
+                                //no horizontal direction = no pass
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+                for (int i = 0; i <= PLAYERCOUNT; i++) {
+                    if (teamA.get(i).hasBall && !teamA.get(i).isCharging) {
+                        teamA.get(i).setBounds(new Rectangle(0, 0, 0, 0));
+                        if (!teamA.get(i).plaqued) {
+                            if(velocityX>0) {
+                                if(i==PLAYERCOUNT)
+                                    teamA.get(i).hasBall = false;
+                                ball.pass(true);
+                                if(i==0)
+                                    teamA.get(i).hasBall = false;
+                            }
+                            else if(velocityX<0) {
+                                if(i==PLAYERCOUNT)
+                                    teamA.get(i).hasBall = false;
+                                ball.pass(false);
+                                if(i==0)
+                                    teamA.get(i).hasBall = false;
+                            }
+                            else {
+                                //No horizontal direction = no pass
+                            }
+                        }
                     }
                 }
             }
         }
         else {
-            for(int i  = 0; i<=PLAYERCOUNT; i++)
-            {
-                if(teamA.get(i).hasBall) {
-                    teamA.get(i).setBounds(new Rectangle(0,0,0,0));
-                    teamA.get(i).hasBall = false;
-                    if(!teamA.get(i).plaqued)
-                    {
-                        ball.pass();
-                    }
-                }
-            }
+            //ignore up and down flings
         }
-
-
-
 
         return false;
     }
