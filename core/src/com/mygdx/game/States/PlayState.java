@@ -87,10 +87,14 @@ public class PlayState extends State implements GestureDetector.GestureListener 
 
                 if (teamA.get(i).collide(ball.getBounds())) {
                     teamA.get(i).hasBall = true;
-                    if(i>0)
-                        teamA.get(i-1).hasBall = false;
-                    if(i<PLAYERCOUNT)
-                        teamA.get(i+1).hasBall = false;
+                    if(i>2) {
+                        teamA.get(i - 1).hasBall = false;
+                        teamA.get(i-2).hasBall = false;
+                    }
+                    if(i<PLAYERCOUNT-1) {
+                        teamA.get(i + 1).hasBall = false;
+                        teamA.get(i+2).hasBall = false;
+                    }
                     ball.setPosition(new Vector3(teamA.get(i).getPosition().x + teamA.get(i).getTexture().getRegionWidth() / 2, teamA.get(i).getPosition().y + teamA.get(i).getTexture().getRegionHeight() / 2, 0));
                     ball.setMOVEMENT(0);
                     ball.setGRAVITY(0);
@@ -228,6 +232,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
     public boolean fling(float velocityX, float velocityY, int button) {
 
         if(Math.abs(velocityX)>Math.abs(velocityY)) {
+            System.out.println(velocityX);
             if (rugbytouch.Paused) {
 
                 rugbytouch.Paused = false;
@@ -238,17 +243,31 @@ public class PlayState extends State implements GestureDetector.GestureListener 
                     if (teamA.get(i).hasBall) {
                         teamA.get(i).setBounds(new Rectangle(0, 0, 0, 0));
                         if (!teamA.get(i).plaqued) {
-                            if(velocityX>0) {
+                            if(velocityX>0 && velocityX<5000) {
                                 if(i==PLAYERCOUNT)
                                     teamA.get(i).hasBall = false;
-                                ball.pass(true, teamA.get(i).isCharging);
+                                ball.pass(true, teamA.get(i).isCharging, false);
                                 if(i==0)
                                     teamA.get(i).hasBall = false;
                             }
-                            else if(velocityX<0) {
+                            else if(velocityX>0 && velocityX>5000) {
                                 if(i==PLAYERCOUNT)
                                     teamA.get(i).hasBall = false;
-                                ball.pass(false, teamA.get(i).isCharging);
+                                ball.pass(true, teamA.get(i).isCharging, true);
+                                if(i==0)
+                                    teamA.get(i).hasBall = false;
+                            }
+                            else if(velocityX<0 && velocityX>-5000) {
+                                if(i==PLAYERCOUNT)
+                                    teamA.get(i).hasBall = false;
+                                ball.pass(false, teamA.get(i).isCharging, false);
+                                if(i==0)
+                                    teamA.get(i).hasBall = false;
+                            }
+                            else if(velocityX<0 && velocityX<-5000) {
+                                if(i==PLAYERCOUNT)
+                                    teamA.get(i).hasBall = false;
+                                ball.pass(false, teamA.get(i).isCharging, true);
                                 if(i==0)
                                     teamA.get(i).hasBall = false;
                             }
@@ -264,17 +283,31 @@ public class PlayState extends State implements GestureDetector.GestureListener 
                     if (teamA.get(i).hasBall) {
                         teamA.get(i).setBounds(new Rectangle(0, 0, 0, 0));
                         if (!teamA.get(i).plaqued) {
-                            if(velocityX>0) {
+                            if(velocityX>0 && velocityX<5000) {
                                 if(i==PLAYERCOUNT)
                                     teamA.get(i).hasBall = false;
-                                ball.pass(true, teamA.get(i).isCharging);
+                                ball.pass(true, teamA.get(i).isCharging, false);
                                 if(i==0)
                                     teamA.get(i).hasBall = false;
                             }
-                            else if(velocityX<0) {
+                            else if(velocityX>0 && velocityX>5000) {
                                 if(i==PLAYERCOUNT)
                                     teamA.get(i).hasBall = false;
-                                ball.pass(false, teamA.get(i).isCharging);
+                                ball.pass(true, teamA.get(i).isCharging, true);
+                                if(i==0)
+                                    teamA.get(i).hasBall = false;
+                            }
+                            else if(velocityX<0 && velocityX>-5000) {
+                                if(i==PLAYERCOUNT)
+                                    teamA.get(i).hasBall = false;
+                                ball.pass(false, teamA.get(i).isCharging, false);
+                                if(i==0)
+                                    teamA.get(i).hasBall = false;
+                            }
+                            else if(velocityX<0 && velocityX<-5000) {
+                                if(i==PLAYERCOUNT)
+                                    teamA.get(i).hasBall = false;
+                                ball.pass(false, teamA.get(i).isCharging, true);
                                 if(i==0)
                                     teamA.get(i).hasBall = false;
                             }

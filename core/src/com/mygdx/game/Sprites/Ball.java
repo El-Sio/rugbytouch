@@ -66,35 +66,73 @@ public class Ball {
         bounds.setPosition(position.x, position.y);
     }
 
-    public void pass(boolean direction, boolean charging) {
+    public void pass(boolean direction, boolean charging, boolean isSautee) {
 
         if(rugbytouch.rugbysave.getBoolean("FxOn"))
             passSound.play(0.5f);
 
         if(direction) {
             //pass right
-            if(charging)
-                velocity.y = 200;
-            else
-                velocity.y = 100;
-            this.setGRAVITY(-15);
-            this.setMOVEMENT(150);
+            if(charging) {
+                if(!isSautee) {
+                    System.out.println("passe à droite simple en courant");
+                    velocity.y = 250;
+                    this.setGRAVITY(-15);
+                    this.setMOVEMENT(150);
+                }
+                if(isSautee) {
+                    System.out.println("passe à droite sautée en courant");
+                    velocity.y = 250;
+                    this.setGRAVITY(-15);
+                    this.setMOVEMENT(300);
+                }
+            }
+            else {
+                if(isSautee) {
+                    System.out.println("passe à droite sautée sans courir");
+                    velocity.y = 250;
+                    this.setGRAVITY(-15);
+                    this.setMOVEMENT(300);
+                }
+                if(!isSautee) {
+                    System.out.println("passe à droite simple sans courir");
+                    velocity.y = 100;
+                    this.setGRAVITY(-15);
+                    this.setMOVEMENT(150);
+                }
+            }
         }
         if(!direction) {
             //pass left, compensate for ball position not centered on player
             if(charging) {
-                velocity.y = 200;
-                this.setGRAVITY(-15);
-                this.setMOVEMENT(-232);
-
+                if(!isSautee) {
+                    System.out.println("passe à gauche simple en courant");
+                    velocity.y = 200;
+                    this.setGRAVITY(-15);
+                    this.setMOVEMENT(-232);
+                }
+                if(isSautee) {
+                    System.out.println("passe à gauche sautée en courant");
+                    velocity.y = 400;
+                    this.setGRAVITY(-15);
+                    this.setMOVEMENT(-462);
+                }
             }
-            else if(!charging) {
-                velocity.y = (100);
-                this.setGRAVITY(-15);
-                this.setMOVEMENT(-200);
+            else {
+                if(!isSautee) {
+                    System.out.println("passe à gauche simple sans courir");
+                    velocity.y = (100);
+                    this.setGRAVITY(-15);
+                    this.setMOVEMENT(-200);
+                }
+                if(isSautee) {
+                    System.out.println("passe à gauche sautée sans courir");
+                    velocity.y = (250);
+                    this.setGRAVITY(-15);
+                    this.setMOVEMENT(-350);
+                }
             }
         }
-
     }
 
     public Vector3 getPosition() {
