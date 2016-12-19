@@ -1,7 +1,7 @@
 package com.mygdx.game.Sprites;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.rugbytouch;
@@ -17,6 +17,7 @@ public class EnnemyPlayer {
     private Vector3 position;
     private int MOVEMENT = -50;
     private boolean VISIBLE;
+    private Animation ennemyAnimation;
 
     public static boolean hasBall;
 
@@ -28,14 +29,16 @@ public class EnnemyPlayer {
         int i = rugbytouch.rugbysave.getInteger("team");
         if(visible) {
             if (i == 0)
-                playerImg = new Texture("player[" + (i + 1) + "].png");
+                playerImg = new Texture("player[" + (i + 1) + "]anim.png");
             else
-                playerImg = new Texture("player[" + (i - 1) + "].png");
+                playerImg = new Texture("player[" + (i - 1) + "]anim.png");
 
-            bounds = new Rectangle(x, y, playerImg.getWidth(), playerImg.getHeight());
+            ennemyAnimation = new Animation(new TextureRegion(playerImg), 4, 0.5f);
+            bounds = new Rectangle(x, y, playerImg.getWidth()/4, playerImg.getHeight());
         }
         if(!visible) {
             playerImg = new Texture("vide.png");
+            ennemyAnimation = new Animation(new TextureRegion(playerImg),1,0.5f);
             bounds = new Rectangle(0,0,0,0);
         }
     }
@@ -48,6 +51,7 @@ public class EnnemyPlayer {
 
     public void update(float dt) {
 
+        ennemyAnimation.update(dt);
         position.add(0,MOVEMENT*dt,0);
         if(position.y<0)
             position.y = 0;
@@ -62,7 +66,7 @@ public class EnnemyPlayer {
         return position;
     }
 
-    public TextureRegion getTexture() {return new TextureRegion(playerImg);}
+    public TextureRegion getTexture() {return ennemyAnimation.getFrame();}
 
     public void setMOVEMENT(int MOVEMENT) {
         this.MOVEMENT = MOVEMENT;

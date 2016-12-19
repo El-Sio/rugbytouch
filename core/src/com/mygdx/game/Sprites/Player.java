@@ -3,7 +3,7 @@ package com.mygdx.game.Sprites;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.rugbytouch;
@@ -26,6 +26,8 @@ public class Player {
     public boolean plaqued;
     public Sound plaquedSound;
     public Sound essaiSound;
+
+    private Animation playerAnimation;
 
     public boolean isCharging;
 
@@ -59,8 +61,9 @@ public class Player {
         plaquedSound = Gdx.audio.newSound(Gdx.files.internal("plaqued.wav"));
         plaquedSound.setVolume(0,5f);
         int i = rugbytouch.rugbysave.getInteger("team");
-        texture = new Texture("player["+i+"].png");
-        bounds = new Rectangle(x, y, texture.getWidth(), texture.getHeight());
+        texture = new Texture("player["+i+"]anim.png");
+        playerAnimation = new Animation(new TextureRegion(texture), 4, 0.5f);
+        bounds = new Rectangle(x, y, texture.getWidth()/4, texture.getHeight());
         hasBall = false;
         plaqued = false;
         isCharging = false;
@@ -68,6 +71,7 @@ public class Player {
 
     public void update(float dt) {
 
+        playerAnimation.update(dt);
         velocity.scl(dt);
         position.add(0,MOVEMENT*dt + velocity.y,0);
         velocity.scl(1/dt);
@@ -97,7 +101,7 @@ public class Player {
         return position;
     }
 
-    public TextureRegion getTexture() {return new TextureRegion(texture);}
+    public TextureRegion getTexture() {return playerAnimation.getFrame();}
 
     public void setBounds(Rectangle bounds) {
         this.bounds = bounds;
