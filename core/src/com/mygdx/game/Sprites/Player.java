@@ -54,7 +54,7 @@ public class Player {
     public Player(int x, int y) {
         position = new Vector3(x,y,0);
         velocity = new Vector3(0,0,0);
-        essaiSound = Gdx.audio.newSound(Gdx.files.internal("essai.wav"));
+        essaiSound = Gdx.audio.newSound(Gdx.files.internal("clap.mp3"));
         essaiSound.setVolume(0,5f);
         plaquedSound = Gdx.audio.newSound(Gdx.files.internal("plaqued.wav"));
         plaquedSound.setVolume(0,5f);
