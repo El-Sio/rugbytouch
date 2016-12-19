@@ -30,6 +30,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
 //    private int LEVEL;
     private Random rand;
     private int position;
+    private int positionattaque;
     private Array<Texture> lifeArray;
 
     public PlayState(GameStateManager gsm,int lives) {
@@ -38,17 +39,29 @@ public class PlayState extends State implements GestureDetector.GestureListener 
         LIVES = lives;
         rand = new Random();
         position = rand.nextInt(PLAYERCOUNT+1);
+        positionattaque = rand.nextInt(PLAYERCOUNT+1);
+
         lifeArray = new Array<Texture>(LIVES);
         for(int i = 0; i<=LIVES; i++) {
             lifeArray.add(new Texture("ball.png"));
         }
         cam.setToOrtho(false, rugbytouch.WIDTH, rugbytouch.HEIGHT);
         background = new Texture("terrain.png");
+
         teamA = new Array<Player>(PLAYERCOUNT);
         teamB = new Array<EnnemyPlayer>(PLAYERCOUNT);
+
         for(int i=0; i<=PLAYERCOUNT; i++) {
-            teamA.add(new Player(100*(i+1), 300 - (i+1)*100 ));
-            teamA.get(i).hasBall = false;
+
+            if(i<=positionattaque) {
+                teamA.add(new Player(100 * (i + 1), 300 - (positionattaque - i) * 100));
+                teamA.get(i).hasBall = false;
+
+            }
+            if(i>positionattaque) {
+                teamA.add(new Player(100 * (i + 1), 300 - (i - positionattaque) * 100));
+                teamA.get(i).hasBall = false;
+            }
             if(i!=position) {
                 teamB.add(new EnnemyPlayer(100*(i+1), 700, true));
             }
@@ -57,7 +70,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
             }
         }
 
-        ball = new Ball(100,400);
+        ball = new Ball(100+ 100*(positionattaque),400);
         GestureDetector gd = new GestureDetector(this);
         Gdx.input.setInputProcessor(gd);
     }
@@ -76,7 +89,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
             for (int i = 0; i <= PLAYERCOUNT; i++) {
                 teamA.get(i).update(dt);
                 if (teamA.get(i).getPosition().y > rugbytouch.HEIGHT && teamA.get(i).hasBall) {
-                    System.out.println("essai !");
+//                    System.out.println("essai !");
                     if(rugbytouch.rugbysave.getBoolean("FxOn"))
                         teamA.get(i).essaiSound.play();
                     if(LIVES<3) {LIVES++;}
@@ -103,7 +116,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
 
                 if(teamB.get(i).collide(ball.getBounds()))
                 {
-                    System.out.println("balle perdue");
+//                    System.out.println("balle perdue");
                     ball.dead = true;
                 }
 
@@ -112,7 +125,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
                     teamA.get(i).setVelocity(new Vector3(0, 0, 0));
                     teamB.get(i).setMOVEMENT(0); */
                     if (teamA.get(i).hasBall) {
-                        System.out.println("plaqué !");
+//                        System.out.println("plaqué !");
                         if (rugbytouch.rugbysave.getBoolean("FxOn"))
                             teamA.get(i).plaquedSound.play();
                         teamA.get(i).plaqued = true;
@@ -196,7 +209,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
 
         if(rugbytouch.Paused) {
             rugbytouch.Paused = false;
-            System.out.println("unpaused");
+//            System.out.println("unpaused");
             for (int i = 0; i <= PLAYERCOUNT; i++) {
                 if (teamA.get(i).hasBall) {
                     if(!teamA.get(i).isCharging) {
@@ -232,7 +245,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
     public boolean fling(float velocityX, float velocityY, int button) {
 
         if(Math.abs(velocityX)>Math.abs(velocityY)) {
-            System.out.println(velocityX);
+ //           System.out.println(velocityX);
             if (rugbytouch.Paused) {
 
                 rugbytouch.Paused = false;

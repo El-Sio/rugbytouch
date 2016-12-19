@@ -75,13 +75,13 @@ public class Ball {
             //pass right
             if(charging) {
                 if(!isSautee) {
-                    System.out.println("passe à droite simple en courant");
+//                    System.out.println("passe à droite simple en courant");
                     velocity.y = 250;
                     this.setGRAVITY(-15);
                     this.setMOVEMENT(150);
                 }
                 if(isSautee) {
-                    System.out.println("passe à droite sautée en courant");
+//                    System.out.println("passe à droite sautée en courant");
                     velocity.y = 250;
                     this.setGRAVITY(-15);
                     this.setMOVEMENT(300);
@@ -89,13 +89,13 @@ public class Ball {
             }
             else {
                 if(isSautee) {
-                    System.out.println("passe à droite sautée sans courir");
+//                    System.out.println("passe à droite sautée sans courir");
                     velocity.y = 250;
                     this.setGRAVITY(-15);
                     this.setMOVEMENT(300);
                 }
                 if(!isSautee) {
-                    System.out.println("passe à droite simple sans courir");
+//                    System.out.println("passe à droite simple sans courir");
                     velocity.y = 100;
                     this.setGRAVITY(-15);
                     this.setMOVEMENT(150);
@@ -106,30 +106,30 @@ public class Ball {
             //pass left, compensate for ball position not centered on player
             if(charging) {
                 if(!isSautee) {
-                    System.out.println("passe à gauche simple en courant");
-                    velocity.y = 200;
-                    this.setGRAVITY(-15);
-                    this.setMOVEMENT(-232);
-                }
-                if(isSautee) {
-                    System.out.println("passe à gauche sautée en courant");
-                    velocity.y = 400;
-                    this.setGRAVITY(-15);
-                    this.setMOVEMENT(-462);
-                }
-            }
-            else {
-                if(!isSautee) {
-                    System.out.println("passe à gauche simple sans courir");
-                    velocity.y = (100);
+//                    System.out.println("passe à gauche simple en courant");
+                    velocity.y = 250;
                     this.setGRAVITY(-15);
                     this.setMOVEMENT(-200);
                 }
                 if(isSautee) {
-                    System.out.println("passe à gauche sautée sans courir");
-                    velocity.y = (250);
+//                    System.out.println("passe à gauche sautée en courant");
+                    velocity.y = 350;
                     this.setGRAVITY(-15);
                     this.setMOVEMENT(-350);
+                }
+            }
+            else {
+                if(!isSautee) {
+//                    System.out.println("passe à gauche simple sans courir");
+                    velocity.y = 100;
+                    this.setGRAVITY(-15);
+                    this.setMOVEMENT(-200);
+                }
+                if(isSautee) {
+//                    System.out.println("passe à gauche sautée sans courir");
+                    velocity.y = 300;
+                    this.setGRAVITY(-15);
+                    this.setMOVEMENT(-330);
                 }
             }
         }

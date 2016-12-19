@@ -78,12 +78,12 @@ public class TeamSelectState extends State {
 
         nextButton.addListener(new InputListener() {
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("Next button pressed");
+ //               System.out.println("Next button pressed");
                 return true;
             }
 
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("Next button released");
+//                System.out.println("Next button released");
                 current++;
                 if(current>2)
                         current = 0;
@@ -92,12 +92,12 @@ public class TeamSelectState extends State {
 
         previousButton.addListener(new InputListener() {
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("previous button pressed");
+//                System.out.println("previous button pressed");
                 return true;
             }
 
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("previous button released");
+//                System.out.println("previous button released");
                 current--;
                 if(current<0)
                     current = 2;
