@@ -87,7 +87,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
 
                 if (teamA.get(i).collide(ball.getBounds())) {
                     teamA.get(i).hasBall = true;
-                    if(i>2) {
+                    if(i>1) {
                         teamA.get(i - 1).hasBall = false;
                         teamA.get(i-2).hasBall = false;
                     }
@@ -247,29 +247,37 @@ public class PlayState extends State implements GestureDetector.GestureListener 
                                 if(i==PLAYERCOUNT)
                                     teamA.get(i).hasBall = false;
                                 ball.pass(true, teamA.get(i).isCharging, false);
-                                if(i==0)
+                                if(i==0){
                                     teamA.get(i).hasBall = false;
+                                    teamA.get(i+1).hasBall = false;
+                                }
                             }
                             else if(velocityX>0 && velocityX>5000) {
                                 if(i==PLAYERCOUNT)
                                     teamA.get(i).hasBall = false;
                                 ball.pass(true, teamA.get(i).isCharging, true);
-                                if(i==0)
+                                if(i==0){
                                     teamA.get(i).hasBall = false;
+                                    teamA.get(i+1).hasBall = false;
+                                }
                             }
                             else if(velocityX<0 && velocityX>-5000) {
                                 if(i==PLAYERCOUNT)
                                     teamA.get(i).hasBall = false;
                                 ball.pass(false, teamA.get(i).isCharging, false);
-                                if(i==0)
+                                if(i==0){
                                     teamA.get(i).hasBall = false;
+                                    teamA.get(i+1).hasBall = false;
+                                }
                             }
                             else if(velocityX<0 && velocityX<-5000) {
                                 if(i==PLAYERCOUNT)
                                     teamA.get(i).hasBall = false;
                                 ball.pass(false, teamA.get(i).isCharging, true);
-                                if(i==0)
+                                if(i==0) {
                                     teamA.get(i).hasBall = false;
+                                    teamA.get(i+1).hasBall = false;
+                                }
                             }
                             else {
                                 //no horizontal direction = no pass
@@ -287,29 +295,37 @@ public class PlayState extends State implements GestureDetector.GestureListener 
                                 if(i==PLAYERCOUNT)
                                     teamA.get(i).hasBall = false;
                                 ball.pass(true, teamA.get(i).isCharging, false);
-                                if(i==0)
+                                if(i==0){
                                     teamA.get(i).hasBall = false;
+                                    teamA.get(i+1).hasBall = false;
+                                }
                             }
                             else if(velocityX>0 && velocityX>5000) {
                                 if(i==PLAYERCOUNT)
                                     teamA.get(i).hasBall = false;
                                 ball.pass(true, teamA.get(i).isCharging, true);
-                                if(i==0)
+                                if(i==0){
                                     teamA.get(i).hasBall = false;
+                                    teamA.get(i+1).hasBall = false;
+                                }
                             }
                             else if(velocityX<0 && velocityX>-5000) {
                                 if(i==PLAYERCOUNT)
                                     teamA.get(i).hasBall = false;
                                 ball.pass(false, teamA.get(i).isCharging, false);
-                                if(i==0)
+                                if(i==0){
                                     teamA.get(i).hasBall = false;
+                                    teamA.get(i+1).hasBall = false;
+                                }
                             }
                             else if(velocityX<0 && velocityX<-5000) {
                                 if(i==PLAYERCOUNT)
                                     teamA.get(i).hasBall = false;
                                 ball.pass(false, teamA.get(i).isCharging, true);
-                                if(i==0)
+                                if(i==0){
                                     teamA.get(i).hasBall = false;
+                                    teamA.get(i+1).hasBall = false;
+                                }
                             }
                             else {
                                 //No horizontal direction = no pass
