@@ -88,7 +88,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
 
             for (int i = 0; i <= PLAYERCOUNT; i++) {
                 teamA.get(i).update(dt);
-                if (ball.getPosition().y > rugbytouch.HEIGHT +20 && teamA.get(i).hasBall) {
+                if (ball.getPosition().y > rugbytouch.HEIGHT + 41 && teamA.get(i).hasBall) {
 //                    System.out.println("essai !");
                     if(rugbytouch.rugbysave.getBoolean("FxOn"))
                         teamA.get(i).essaiSound.play();
