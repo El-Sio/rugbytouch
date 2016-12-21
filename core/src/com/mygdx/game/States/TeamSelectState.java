@@ -18,6 +18,9 @@ import com.mygdx.game.rugbytouch;
 
 /**
  * Created by charl on 11/12/2016.
+ *
+ * Additionnal settings page to select the playable character's Skin through an array of existing textures..
+ *
  */
 
 public class TeamSelectState extends State {
@@ -37,10 +40,12 @@ public class TeamSelectState extends State {
     private ImageButton selectButton;
     private Texture selectButtonImg;
 
+    private static final int TEAMCOUNT = 2;
+
     public TeamSelectState(GameStateManager gsm) {
         super(gsm);
         teamList = new Array<Texture>();
-        for (int i=0; i<=2; i++) {
+        for (int i=0; i<=TEAMCOUNT; i++) {
             teamList.add(new Texture("player["+i+"].png"));
         }
 
@@ -78,12 +83,10 @@ public class TeamSelectState extends State {
 
         nextButton.addListener(new InputListener() {
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
- //               System.out.println("Next button pressed");
                 return true;
             }
 
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-//                System.out.println("Next button released");
                 current++;
                 if(current>2)
                         current = 0;
@@ -92,12 +95,10 @@ public class TeamSelectState extends State {
 
         previousButton.addListener(new InputListener() {
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-//                System.out.println("previous button pressed");
                 return true;
             }
 
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-//                System.out.println("previous button released");
                 current--;
                 if(current<0)
                     current = 2;
@@ -136,7 +137,7 @@ public class TeamSelectState extends State {
     @Override
     public void dispose() {
 
-        for (int i=0; i<2; i++) {
+        for (int i=0; i<=TEAMCOUNT; i++) {
             teamList.get(i).dispose();
         }
         nextButtonImg.dispose();

@@ -6,6 +6,12 @@ import com.badlogic.gdx.math.Vector3;
 
 /**
  * Created by charl on 04/12/2016.
+ *
+ * Copied from the flappy bird demo videos
+ * Generic class to describe any game screen used in the game.
+ *
+ * TODO : try to unse the libgdx built-in "Screen" class instead ?
+ *
  */
 
 public abstract class State {

@@ -17,6 +17,10 @@ import com.mygdx.game.rugbytouch;
 
 /**
  * Created by charl on 11/12/2016.
+ *
+ * Simple game menu with 3 buttons to call for the other screens in the game.
+ * TODO add an animated background and some effects on the buttons when clicked
+ *
  */
 
 public class MenuState extends State {

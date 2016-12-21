@@ -10,6 +10,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.game.States.GameStateManager;
 import com.mygdx.game.States.MenuState;
 
+/*
+* Rugby touch by EL-Sio
+*
+* Simple rugby game using libgdx.
+* This is the main class declaring all the user preference vaiables used throughout the game
+*
+ */
+
 public class rugbytouch extends ApplicationAdapter {
 
 	SpriteBatch batch;

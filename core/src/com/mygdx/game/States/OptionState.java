@@ -22,6 +22,11 @@ import com.mygdx.game.rugbytouch;
 
 /**
  * Created by charl on 11/12/2016.
+ *
+ * Simple "settings page" for the game with Audio control
+ * TODO add a "difficlty" slider control and handle this difficulty settings in the game
+ * TODO : this is ugly, find better images for the checkboxes
+ *
  */
 
 public class OptionState extends State {

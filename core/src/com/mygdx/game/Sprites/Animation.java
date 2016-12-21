@@ -5,6 +5,10 @@ import com.badlogic.gdx.utils.Array;
 
 /**
  * Created by charl on 05/12/2016.
+ *
+ * Simple animation class copied from flappy brd demo videos.
+ * Cycles through regions of the same width in a texture to return the current frame at each step.
+ *
  */
 
 public class Animation {

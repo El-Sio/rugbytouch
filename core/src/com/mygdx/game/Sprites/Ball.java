@@ -10,6 +10,11 @@ import com.mygdx.game.rugbytouch;
 
 /**
  * Created by charl on 11/12/2016.
+ *
+ * This class handles the ball. The ball moves horizontally when passed by the players.
+ * TODO : clarify pass movement values to be more precise and look more realistic.
+ * TODO : handle the case of the ball being kicked.
+ *
  */
 
 public class Ball {
@@ -20,7 +25,7 @@ public class Ball {
     private Vector3 position;
     private Vector3 velocity;
 
-    private Sound passSound;
+    private Sound passSound; //SOund FX when ball is tossed around
 
     private Texture texture;
     public boolean dead;
@@ -68,6 +73,11 @@ public class Ball {
 
     public void pass(boolean direction, boolean charging, boolean isSautee) {
 
+        /*The pass is called by a player on the ball and the ball starts to move.
+        *Dependng on the user fling direction the pass can go left or right.
+        * Depending on the speed of the player holding the ball, the values of movement must be adjusted to avoind collinding with the next player or ennemy.
+        * */
+
         if(rugbytouch.rugbysave.getBoolean("FxOn"))
             passSound.play(0.5f);
 
@@ -75,13 +85,13 @@ public class Ball {
             //pass right
             if(charging) {
                 if(!isSautee) {
-//                    System.out.println("passe à droite simple en courant");
+                    //simple pass to the right at high speed
                     velocity.y = 250;
                     this.setGRAVITY(-15);
                     this.setMOVEMENT(150);
                 }
                 if(isSautee) {
-//                    System.out.println("passe à droite sautée en courant");
+                    //long pass to the right at high speed
                     velocity.y = 250;
                     this.setGRAVITY(-15);
                     this.setMOVEMENT(300);
@@ -89,13 +99,13 @@ public class Ball {
             }
             else {
                 if(isSautee) {
-//                    System.out.println("passe à droite sautée sans courir");
+                    //long pass to the right at normal speed
                     velocity.y = 250;
                     this.setGRAVITY(-15);
                     this.setMOVEMENT(300);
                 }
                 if(!isSautee) {
-//                    System.out.println("passe à droite simple sans courir");
+                    //normal pss to the right at normal speed
                     velocity.y = 100;
                     this.setGRAVITY(-15);
                     this.setMOVEMENT(150);
@@ -106,13 +116,13 @@ public class Ball {
             //pass left, compensate for ball position not centered on player
             if(charging) {
                 if(!isSautee) {
-//                    System.out.println("passe à gauche simple en courant");
+                    //noormal pass to the left at high speed
                     velocity.y = 250;
                     this.setGRAVITY(-15);
                     this.setMOVEMENT(-200);
                 }
                 if(isSautee) {
-//                    System.out.println("passe à gauche sautée en courant");
+                    //long pass to the left at high speed
                     velocity.y = 350;
                     this.setGRAVITY(-15);
                     this.setMOVEMENT(-350);
@@ -120,13 +130,13 @@ public class Ball {
             }
             else {
                 if(!isSautee) {
-//                    System.out.println("passe à gauche simple sans courir");
+                    //normal pass to the left at normal speed
                     velocity.y = 100;
                     this.setGRAVITY(-15);
                     this.setMOVEMENT(-200);
                 }
                 if(isSautee) {
-//                    System.out.println("passe à gauche sautée sans courir");
+                    //long pass to the left at high speed
                     velocity.y = 300;
                     this.setGRAVITY(-15);
                     this.setMOVEMENT(-330);

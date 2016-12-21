@@ -8,6 +8,8 @@ import com.mygdx.game.rugbytouch;
 
 /**
  * Created by charl on 13/12/2016.
+ * This class handles ennemy players
+ * TODO : have ennemy players do cooler stuff than just block your way.
  */
 
 public class EnnemyPlayer {
@@ -24,6 +26,9 @@ public class EnnemyPlayer {
     private Rectangle bounds;
 
     public EnnemyPlayer(int x, int y, boolean visible) {
+
+        //EnnemyPLayer is a simpler type of player that can be rendered with an "empty" texture to allow for a "gap" in the defense.
+
         position = new Vector3(x,y,0);
         velocity = new Vector3(0,0,0);
         int i = rugbytouch.rugbysave.getInteger("team");

@@ -10,11 +10,15 @@ import com.mygdx.game.rugbytouch;
 
 /**
  * Created by charl on 11/12/2016.
+ *
+ * THhis class handles the player controlled by the user. Player can run, slowdown and pass the ball lefto or right.
+ * TODO allow the player to kick over the defense or try to go through by creating a "ruck"
+ *
  */
 
 public class Player {
 
-    private int MOVEMENT = 100;
+    private int MOVEMENT = 100; //Used for the vertical "speed" of the player
     private int GRAVITY = 0;
 
     private Vector3 position;
@@ -22,14 +26,14 @@ public class Player {
 
     private Texture texture;
 
-    public boolean hasBall;
-    public boolean plaqued;
-    public Sound plaquedSound;
-    public Sound essaiSound;
+    public boolean hasBall; // is the player currently holding the ball
+    public boolean plaqued; // has the player been tackled
+    public Sound plaquedSound; //Sound FX when tackled
+    public Sound essaiSound; //Sound FX when scoring
 
-    private Animation playerAnimation;
+    private Animation playerAnimation; //Animated sprite
 
-    public boolean isCharging;
+    public boolean isCharging; //IS the player accelerating ?
 
     public void setMOVEMENT(int MOVEMENT) {
         this.MOVEMENT = MOVEMENT;
@@ -86,6 +90,7 @@ public class Player {
     }
 
     public void charge() {
+        //Set speed up a notch
         if(!isCharging) {
             isCharging = true;
             velocity.y = 150;
@@ -93,6 +98,7 @@ public class Player {
     }
 
     public void slowdown() {
+        //Set speed back to original values
         isCharging = false;
         velocity.y = 0;
     }
