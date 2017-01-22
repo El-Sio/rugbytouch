@@ -25,6 +25,10 @@ public class EnnemyPlayer {
 
     private Rectangle bounds;
 
+    public int getMOVEMENT() {
+        return MOVEMENT;
+    }
+
     public EnnemyPlayer(int x, int y, boolean visible) {
 
         //EnnemyPLayer is a simpler type of player that can be rendered with an "empty" texture to allow for a "gap" in the defense.

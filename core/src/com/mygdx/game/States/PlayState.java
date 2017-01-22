@@ -3,11 +3,16 @@ package com.mygdx.game.States;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Sprites.Ball;
 import com.mygdx.game.Sprites.EnnemyPlayer;
 import com.mygdx.game.Sprites.Player;
@@ -34,6 +39,10 @@ public class PlayState extends State implements GestureDetector.GestureListener 
     private int position;
     private int positionattaque;
     private Array<Texture> lifeArray;
+    private Stage gameOver;
+    private ImageButton gameOverButton;
+    private Texture gameOverButtonImg;
+    private Boolean isGameOver;
 
     public PlayState(GameStateManager gsm,int lives) {
 
@@ -59,6 +68,15 @@ public class PlayState extends State implements GestureDetector.GestureListener 
         //TODO find a way to zoom out of the field and have a bigger bg image
         cam.setToOrtho(false, rugbytouch.WIDTH, rugbytouch.HEIGHT);
         background = new Texture("terrain.png");
+
+        gameOverButtonImg = new Texture("gameover.png");
+        gameOverButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(gameOverButtonImg)));
+        gameOver = new Stage(new FitViewport(rugbytouch.WIDTH, rugbytouch.HEIGHT));
+        gameOver.addActor(gameOverButton);
+        gameOverButton.setPosition(cam.position.x - gameOverButtonImg.getWidth()/2, cam.position.y);
+        gameOver.act();
+
+        isGameOver = false;
 
         //create the Teams
         teamA = new Array<Player>(PLAYERCOUNT);
@@ -98,7 +116,15 @@ public class PlayState extends State implements GestureDetector.GestureListener 
     @Override
     protected void handleInput() {
 
-        //Nothing to see here since gesture is handled directly by the instance.
+        //Handle input on the "game over popup"
+        if(isGameOver) {
+            rugbytouch.Paused = true;
+            Gdx.input.setInputProcessor(gameOver);
+            if(Gdx.input.justTouched()) {
+                rugbytouch.Paused = false;
+                gsm.set(new MenuState(gsm));
+            }
+        }
     }
 
     @Override
@@ -114,6 +140,15 @@ public class PlayState extends State implements GestureDetector.GestureListener 
             for (int i = 0; i <= PLAYERCOUNT; i++) {
                 //Move them around
                 teamA.get(i).update(dt);
+
+                if(!teamA.get(i).hasBall && teamA.get(i).isRucking && teamB.get(i).getMOVEMENT() == 0) {
+                    //the ruck is over after the rucking player made a pass
+                    for(int j=0; j<=PLAYERCOUNT; j++) {
+                        teamA.get(j).setMOVEMENT(100);
+                        teamB.get(j).setMOVEMENT(-50);
+                    }
+                    teamA.get(i).isRucking = false;
+                }
 
                 //Check if a player has scored. It must hold the ball (hasBall = true) and have crossed the line
                 //TODO have the scoring line's height different fom the viewport's height on an "absolute" field
@@ -153,7 +188,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
                 // Check if ennemy players touches the ball, resulting in a loss of life ahndled by the deadball routine below
                 if(teamB.get(i).collide(ball.getBounds()))
                 {
-                    ball.dead = true;
+//                    ball.dead = true;
                 }
 
                 // Handles collision between player and the ennemy facing him
@@ -163,19 +198,29 @@ public class PlayState extends State implements GestureDetector.GestureListener 
                     //Check if the collision happened to the player carrying the ball
                     if (teamA.get(i).hasBall) {
 
-                        //In that case the player gets "tackled" (plaqué in french) and loses a life.
-                        if (rugbytouch.rugbysave.getBoolean("FxOn"))
-                            teamA.get(i).plaquedSound.play();
-                        teamA.get(i).plaqued = true;
-                        LIVES--;
-                        //Game is over when life counter reachs 0 and brings you back to menu
-                        if(LIVES == 0) {
-                            //TODO : display a "game over message" over the paused game state before going back to menu
-                            gsm.set(new MenuState(gsm));
+                        if(teamA.get(i).isCharging) {
+                            teamA.get(i).slowdown();
+                            teamA.get(i).isRucking = true;
+                            for(int j=0; j<=PLAYERCOUNT; j++) {
+                                teamA.get(j).setMOVEMENT(0);
+                                teamB.get(j).setMOVEMENT(0);
+                            }
                         }
-                        if(LIVES >0) {
-                            //Game restarts with one life less.
-                            gsm.set(new PlayState(gsm, LIVES));
+
+                        if (!teamA.get(i).isCharging && !teamA.get(i).isRucking) {
+                            //In that case the player gets "tackled" (plaqué in french) and loses a life.
+                            if (rugbytouch.rugbysave.getBoolean("FxOn"))
+                                teamA.get(i).plaquedSound.play();
+                            teamA.get(i).plaqued = true;
+                            LIVES--;
+                            //Game is over when life counter reachs 0 and brings you back to menu
+                            if (LIVES < 0) {
+                                isGameOver = true;
+                            }
+                            if (LIVES >= 0) {
+                                //Game restarts with one life less.
+                                gsm.set(new PlayState(gsm, LIVES));
+                            }
                         }
                     }
                 }
@@ -203,11 +248,10 @@ public class PlayState extends State implements GestureDetector.GestureListener 
             if (ball.dead) {
 
                 LIVES --;
-                if(LIVES == 0) {
-                    //TODO display a Game Over message before returning to menu
-                    gsm.set(new MenuState(gsm));
+                if(LIVES < 0) {
+                    isGameOver = true;
                 }
-                if(LIVES >0) {
+                if(LIVES >=0) {
                     gsm.set(new PlayState(gsm, LIVES));
                 }
             }
@@ -241,8 +285,11 @@ public class PlayState extends State implements GestureDetector.GestureListener 
         for (int i=0; i<=LIVES; i++) {
             sb.draw(lifeArray.get(i), cam.position.x + cam.viewportWidth/2 - 42*i, cam.position.y - cam.viewportHeight/2);
         }
-
         sb.end();
+
+        if(isGameOver) {
+            gameOver.draw();
+        }
     }
 
     @Override
@@ -260,6 +307,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
             lifeArray.get(i).dispose();
         }
 
+        gameOver.dispose();
     }
 
     //This section handles gestures
@@ -279,33 +327,19 @@ public class PlayState extends State implements GestureDetector.GestureListener 
         //Each implemented gesture can take you out of paused state.
         if(rugbytouch.Paused) {
             rugbytouch.Paused = false;
-            for (int i = 0; i <= PLAYERCOUNT; i++) {
-                if (teamA.get(i).hasBall) {
-                    if(!teamA.get(i).isCharging) {
-                        teamA.get(i).charge();
-                    }
-                    else {
-                        teamA.get(i).slowdown();
-                    }
-                }
-            }
         }
-        //Do the same thing of we are not on pause.
-        //TODO pretty sure this is useless repetition. Delete if that is the case.
-        else {
-            for (int i = 0; i <= PLAYERCOUNT; i++) {
-                if (teamA.get(i).hasBall) {
-                    if(!teamA.get(i).isCharging) {
-                        teamA.get(i).charge();
-                    }
-                    else {
-                        teamA.get(i).slowdown();
-                    }
+        for (int i = 0; i <= PLAYERCOUNT; i++) {
+            if (teamA.get(i).hasBall) {
+                if(!teamA.get(i).isCharging) {
+                    teamA.get(i).charge();
+                }
+                else {
+                    teamA.get(i).slowdown();
                 }
             }
         }
         return false;
-    }
+        }
 
     @Override
     public boolean longPress(float x, float y) {
@@ -318,125 +352,69 @@ public class PlayState extends State implements GestureDetector.GestureListener 
     @Override
     public boolean fling(float velocityX, float velocityY, int button) {
 
+        if (rugbytouch.Paused) {
+            rugbytouch.Paused = false;
+        }
+
         if(Math.abs(velocityX)>Math.abs(velocityY)) {
-            if (rugbytouch.Paused) {
-
-                rugbytouch.Paused = false;
-
-                for (int i = 0; i <= PLAYERCOUNT; i++) {
-
+            for (int i = 0; i <= PLAYERCOUNT; i++) {
                     //ONly the ball carrier can pass it.
-                    if (teamA.get(i).hasBall) {
-                        //Before starting the ball movement, we must end collision events woth the player by setting it's bounds temporarly to an empty rectangle.
-                        //TODO find a better way to pass the ball and keep player "solid" probably using box2d
-                        teamA.get(i).setBounds(new Rectangle(0, 0, 0, 0));
-                        if (!teamA.get(i).plaqued) {
-                            //Simple pass to the right
-                            if(velocityX>0 && velocityX<5000) {
-                                //Player on the extremities must 'loose' ball as soon as they pass it and not wait for adjascent player to reveive it.
-                                //TODO this should be simplified by the better solution to the sticky ball problem
-                                if(i==PLAYERCOUNT)
-                                    teamA.get(i).hasBall = false;
-                                ball.pass(true, teamA.get(i).isCharging, false);
-                                if(i==0){
-                                    teamA.get(i).hasBall = false;
-                                    teamA.get(i+1).hasBall = false;
-                                }
+                if (teamA.get(i).hasBall) {
+                    //Before starting the ball movement, we must end collision events woth the player by setting it's bounds temporarly to an empty rectangle.
+                    //TODO find a better way to pass the ball and keep player "solid" probably using box2d
+                    teamA.get(i).setBounds(new Rectangle(0, 0, 0, 0));
+                    if (!teamA.get(i).plaqued) {
+                        //Simple pass to the right
+                        if(velocityX>0 && velocityX<5000) {
+                            //Player on the extremities must 'loose' ball as soon as they pass it and not wait for adjascent player to reveive it.
+                            //TODO this should be simplified by the better solution to the sticky ball problem
+                            if(i==PLAYERCOUNT)
+                                teamA.get(i).hasBall = false;
+                            ball.pass(true, teamA.get(i).isCharging, false);
+                            if(i==0){
+                                teamA.get(i).hasBall = false;
+                                teamA.get(i+1).hasBall = false;
                             }
-                            //Long pass to the right
-                            //TODO same as previous comment for extremities.
-                            else if(velocityX>0 && velocityX>5000) {
-                                if(i==PLAYERCOUNT)
-                                    teamA.get(i).hasBall = false;
-                                ball.pass(true, teamA.get(i).isCharging, true);
-                                if(i==0){
-                                    teamA.get(i).hasBall = false;
-                                    teamA.get(i+1).hasBall = false;
-                                }
+                        }
+                        //Long pass to the right
+                        //TODO same as previous comment for extremities.
+                        else if(velocityX>0 && velocityX>5000) {
+                            if(i==PLAYERCOUNT)
+                                teamA.get(i).hasBall = false;
+                            ball.pass(true, teamA.get(i).isCharging, true);
+                            if(i==0){
+                                teamA.get(i).hasBall = false;
+                                teamA.get(i+1).hasBall = false;
                             }
-                            //Simple pass to the left.
-                            else if(velocityX<0 && velocityX>-5000) {
-                                if(i==PLAYERCOUNT)
-                                    teamA.get(i).hasBall = false;
-                                ball.pass(false, teamA.get(i).isCharging, false);
-                                if(i==0){
-                                    teamA.get(i).hasBall = false;
-                                    teamA.get(i+1).hasBall = false;
-                                }
+                        }
+                        //Simple pass to the left.
+                        else if(velocityX<0 && velocityX>-5000) {
+                            if(i==PLAYERCOUNT)
+                                teamA.get(i).hasBall = false;
+                            ball.pass(false, teamA.get(i).isCharging, false);
+                            if(i==0){
+                                teamA.get(i).hasBall = false;
+                                teamA.get(i+1).hasBall = false;
                             }
-                            //long pass to the left
-                            else if(velocityX<0 && velocityX<-5000) {
-                                if(i==PLAYERCOUNT)
-                                    teamA.get(i).hasBall = false;
-                                ball.pass(false, teamA.get(i).isCharging, true);
-                                if(i==0) {
-                                    teamA.get(i).hasBall = false;
-                                    teamA.get(i+1).hasBall = false;
-                                }
+                        }
+                        //long pass to the left
+                        else if(velocityX<0 && velocityX<-5000) {
+                            if(i==PLAYERCOUNT)
+                                teamA.get(i).hasBall = false;
+                            ball.pass(false, teamA.get(i).isCharging, true);
+                            if(i==0) {
+                                teamA.get(i).hasBall = false;
+                                teamA.get(i+1).hasBall = false;
                             }
-                            else {
-                                //no horizontal direction = no pass
-                                //TODO handle drop kicks here
-                            }
+                        }
+                        else {
+                            //no horizontal direction = no pass
+                            //TODO handle drop kicks here
                         }
                     }
                 }
             }
-            //same exact thing if we are not in pause.
-            //TODO check if useless and delete if that is the case.
-            else {
-                for (int i = 0; i <= PLAYERCOUNT; i++) {
-                    if (teamA.get(i).hasBall) {
-                        teamA.get(i).setBounds(new Rectangle(0, 0, 0, 0));
-                        if (!teamA.get(i).plaqued) {
-                            if(velocityX>0 && velocityX<5000) {
-                                if(i==PLAYERCOUNT)
-                                    teamA.get(i).hasBall = false;
-                                ball.pass(true, teamA.get(i).isCharging, false);
-                                if(i==0){
-                                    teamA.get(i).hasBall = false;
-                                    teamA.get(i+1).hasBall = false;
-                                }
-                            }
-                            else if(velocityX>0 && velocityX>5000) {
-                                if(i==PLAYERCOUNT)
-                                    teamA.get(i).hasBall = false;
-                                ball.pass(true, teamA.get(i).isCharging, true);
-                                if(i==0){
-                                    teamA.get(i).hasBall = false;
-                                    teamA.get(i+1).hasBall = false;
-                                }
-                            }
-                            else if(velocityX<0 && velocityX>-5000) {
-                                if(i==PLAYERCOUNT)
-                                    teamA.get(i).hasBall = false;
-                                ball.pass(false, teamA.get(i).isCharging, false);
-                                if(i==0){
-                                    teamA.get(i).hasBall = false;
-                                    teamA.get(i+1).hasBall = false;
-                                }
-                            }
-                            else if(velocityX<0 && velocityX<-5000) {
-                                if(i==PLAYERCOUNT)
-                                    teamA.get(i).hasBall = false;
-                                ball.pass(false, teamA.get(i).isCharging, true);
-                                if(i==0){
-                                    teamA.get(i).hasBall = false;
-                                    teamA.get(i+1).hasBall = false;
-                                }
-                            }
-                            else {
-                                //No horizontal direction = no pass
-                            }
-                        }
-                    }
-                }
             }
-        }
-        else {
-            //ignore up and down flings
-        }
-
         return false;
     }
 
