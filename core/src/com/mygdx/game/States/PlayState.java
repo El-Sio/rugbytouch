@@ -43,6 +43,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
     private int position;
     private int positionattaque;
     private Array<Texture> lifeArray;
+    private static final int difficulty = 4;
 
     private Stage gameOver;
     private ImageButton gameOverButton;
@@ -166,7 +167,8 @@ public class PlayState extends State implements GestureDetector.GestureListener 
                 teamA.get(i).update(dt);
                 if(teamA.get(i).isRucking)  {
                     if(teamA.get(i).force < 10) {
-                        teamA.get(i).force = teamA.get(i).force - 3 * dt;
+                        //TODO change difficulty settings
+                        teamA.get(i).force = teamA.get(i).force - difficulty * dt;
                         System.out.println(teamA.get(i).force);
                     }
                     if(teamA.get(i).force<1) {
@@ -338,6 +340,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
             if(teamA.get(ruckingplayer).force>=10) {
                 if(!ruckresolved) {
                     ruckresolved = true;
+                    //Winning ruck creates a Gap in defense.
                     position = rand.nextInt(PLAYERCOUNT+1);
                     while (position == ruckingplayer) {
                         position = rand.nextInt(PLAYERCOUNT+1);
@@ -351,7 +354,17 @@ public class PlayState extends State implements GestureDetector.GestureListener 
                         if (rugbytouch.rugbysave.getBoolean("FxOn")) {
                         ruckOverSound.play();
                     }
-                }
+                    //re-align offense on ball carrier
+                    for(int i=0; i<=PLAYERCOUNT; i++) {
+
+                        if (i <= ruckingplayer) {
+                            teamA.get(i).setPosition(new Vector3(100 * (i + 1), teamA.get(ruckingplayer).getPosition().y - (ruckingplayer - i) * 100, 0));
+                        }
+                        if (i > ruckingplayer) {
+                            teamA.get(i).setPosition(new Vector3(100 * (i + 1), teamA.get(ruckingplayer).getPosition().y - (i - ruckingplayer) * 100, 0));
+                        }
+                    }
+                    }
                 Texture tmpTxt = new Texture("useit.png");
                 Image useIt = new Image(new TextureRegionDrawable(new TextureRegion(tmpTxt)));
                 useIt.setPosition(240 - tmpTxt.getWidth()/2, cam.position.y - 2*tmpTxt.getHeight());
