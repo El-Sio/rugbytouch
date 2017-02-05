@@ -29,6 +29,7 @@ public class Player {
     public boolean hasBall; // is the player currently holding the ball
     public boolean plaqued; // has the player been tackled
     public boolean isRucking; //is the player involved in a ruck
+    public float force; //the amount of strength in rucking opposition
 
     public Sound plaquedSound; //Sound FX when tackled
     public Sound essaiSound; //Sound FX when scoring
@@ -74,6 +75,7 @@ public class Player {
         plaqued = false;
         isCharging = false;
         isRucking = false;
+        force = 5;
     }
 
     public void update(float dt) {

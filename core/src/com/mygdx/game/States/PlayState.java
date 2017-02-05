@@ -1,6 +1,7 @@
 package com.mygdx.game.States;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -9,14 +10,17 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.game.Sprites.Ball;
 import com.mygdx.game.Sprites.EnnemyPlayer;
 import com.mygdx.game.Sprites.Player;
 import com.mygdx.game.rugbytouch;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.Random;
 
@@ -39,15 +43,29 @@ public class PlayState extends State implements GestureDetector.GestureListener 
     private int position;
     private int positionattaque;
     private Array<Texture> lifeArray;
+
     private Stage gameOver;
     private ImageButton gameOverButton;
     private Texture gameOverButtonImg;
     private Boolean isGameOver;
 
+    private Stage ruckBar;
+    private Array<Image> forceArray;
+    private Boolean isRuck;
+    private int ruckingplayer;
+    private Boolean ruckresolved;
+
+    private Sound ruckOverSound;
+
     public PlayState(GameStateManager gsm,int lives) {
 
         super(gsm);
         LIVES = lives;
+
+        ruckingplayer = -1;
+
+        ruckOverSound = Gdx.audio.newSound(Gdx.files.internal("coin.wav"));
+        ruckOverSound.setVolume(0,5f);
 
         //Random Gap and Start Points
         rand = new Random();
@@ -69,6 +87,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
         cam.setToOrtho(false, rugbytouch.WIDTH, rugbytouch.HEIGHT);
         background = new Texture("terrain.png");
 
+        //simple Game Over Splash Screen
         gameOverButtonImg = new Texture("gameover.png");
         gameOverButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(gameOverButtonImg)));
         gameOver = new Stage(new FitViewport(rugbytouch.WIDTH, rugbytouch.HEIGHT));
@@ -77,6 +96,14 @@ public class PlayState extends State implements GestureDetector.GestureListener 
         gameOver.act();
 
         isGameOver = false;
+
+        //During Ruck Phase, displays a "bar" showing the opposing Strength.
+        ruckBar = new Stage(new FitViewport(rugbytouch.WIDTH, rugbytouch.HEIGHT));
+        forceArray = new Array<Image>(9);
+        ruckBar.act();
+
+        isRuck = false;
+        ruckresolved = false;
 
         //create the Teams
         teamA = new Array<Player>(PLAYERCOUNT);
@@ -136,10 +163,30 @@ public class PlayState extends State implements GestureDetector.GestureListener 
         //Game only updates when not paused (after app lost focus)
         if(!rugbytouch.Paused) {
 
-            //Loo^p through all the players
+            //Loop through all the players
             for (int i = 0; i <= PLAYERCOUNT; i++) {
                 //Move them around
                 teamA.get(i).update(dt);
+                if(teamA.get(i).isRucking)  {
+                    if(teamA.get(i).force < 10) {
+                        teamA.get(i).force = teamA.get(i).force - 3 * dt;
+                        System.out.println(teamA.get(i).force);
+                    }
+                    if(teamA.get(i).force<1) {
+                        if (rugbytouch.rugbysave.getBoolean("FxOn"))
+                            teamA.get(i).plaquedSound.play();
+                        teamA.get(i).plaqued = true;
+                        LIVES--;
+                        //Game is over when life counter reachs 0 and brings you back to menu
+                        if (LIVES < 0) {
+                            isGameOver = true;
+                        }
+                        if (LIVES >= 0) {
+                            //Game restarts with one life less.
+                            gsm.set(new PlayState(gsm, LIVES));
+                        }
+                    }
+                }
 
                 if(!teamA.get(i).hasBall && teamA.get(i).isRucking && teamB.get(i).getMOVEMENT() == 0) {
                     //the ruck is over after the rucking player made a pass
@@ -147,7 +194,10 @@ public class PlayState extends State implements GestureDetector.GestureListener 
                         teamA.get(j).setMOVEMENT(100);
                         teamB.get(j).setMOVEMENT(-50);
                     }
+                    isRuck = false;
                     teamA.get(i).isRucking = false;
+                    teamA.get(i).force = 5;
+                    ruckingplayer = -1;
                 }
 
                 //Check if a player has scored. It must hold the ball (hasBall = true) and have crossed the line
@@ -201,6 +251,8 @@ public class PlayState extends State implements GestureDetector.GestureListener 
                         if(teamA.get(i).isCharging) {
                             teamA.get(i).slowdown();
                             teamA.get(i).isRucking = true;
+                            isRuck = true;
+                            ruckingplayer = i;
                             for(int j=0; j<=PLAYERCOUNT; j++) {
                                 teamA.get(j).setMOVEMENT(0);
                                 teamB.get(j).setMOVEMENT(0);
@@ -278,6 +330,29 @@ public class PlayState extends State implements GestureDetector.GestureListener 
             sb.draw(teamB.get(i).getTexture(), teamB.get(i).getPosition().x, teamB.get(i).getPosition().y);
         }
 
+        if(isRuck) {
+            ruckBar.clear();
+            forceArray.clear();
+            for (int j = 0; j < Math.min(Math.round(teamA.get(ruckingplayer).force),10); j++) {
+                forceArray.add(new Image(new TextureRegionDrawable(new TextureRegion(new Texture("ball.png")))));
+                ruckBar.addActor(forceArray.get(j));
+                forceArray.get(j).setPosition(20+42*j, cam.position.y);
+            }
+            if(teamA.get(ruckingplayer).force>=10) {
+                if(!ruckresolved) {
+                    ruckresolved = true;
+                    if (rugbytouch.rugbysave.getBoolean("FxOn")) {
+                        ruckOverSound.play();
+                    }
+                }
+                Texture tmpTxt = new Texture("useit.png");
+                Image useIt = new Image(new TextureRegionDrawable(new TextureRegion(tmpTxt)));
+                useIt.setPosition(240 - tmpTxt.getWidth()/2, cam.position.y - 2*tmpTxt.getHeight());
+                ruckBar.addActor(useIt);
+                }
+            ruckBar.draw();
+        }
+
         //Draw Ball
         sb.draw(ball.getTexture(), ball.getPosition().x, ball.getPosition().y);
 
@@ -308,6 +383,8 @@ public class PlayState extends State implements GestureDetector.GestureListener 
         }
 
         gameOver.dispose();
+        ruckBar.dispose();
+        forceArray.clear();
     }
 
     //This section handles gestures
@@ -329,7 +406,12 @@ public class PlayState extends State implements GestureDetector.GestureListener 
             rugbytouch.Paused = false;
         }
         for (int i = 0; i <= PLAYERCOUNT; i++) {
-            if (teamA.get(i).hasBall) {
+            if(teamA.get(i).isRucking) {
+                //Tap to oppose the ennemy's strength
+                teamA.get(i).force++;
+                System.out.println(teamA.get(i).force);
+            }
+            else if (teamA.get(i).hasBall) {
                 if(!teamA.get(i).isCharging) {
                     teamA.get(i).charge();
                 }
@@ -358,10 +440,13 @@ public class PlayState extends State implements GestureDetector.GestureListener 
 
         if(Math.abs(velocityX)>Math.abs(velocityY)) {
             for (int i = 0; i <= PLAYERCOUNT; i++) {
-                    //ONly the ball carrier can pass it.
-                if (teamA.get(i).hasBall) {
-                    //Before starting the ball movement, we must end collision events woth the player by setting it's bounds temporarly to an empty rectangle.
+                    //ONly the ball carrier can pass it. A rucking player can only pass after winning the ruck.
+                if (teamA.get(i).hasBall && (teamA.get(i).force>10 || !teamA.get(i).isRucking)) {
+                    //Before starting the ball movement, we must end collision events with the player by setting it's bounds temporarly to an empty rectangle.
                     //TODO find a better way to pass the ball and keep player "solid" probably using box2d
+                    isRuck = false;
+                    forceArray.clear();
+                    ruckresolved = false;
                     teamA.get(i).setBounds(new Rectangle(0, 0, 0, 0));
                     if (!teamA.get(i).plaqued) {
                         //Simple pass to the right
