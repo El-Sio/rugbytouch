@@ -67,15 +67,17 @@ public class PlayState extends State implements GestureDetector.GestureListener 
         ruckOverSound = Gdx.audio.newSound(Gdx.files.internal("coin.wav"));
         ruckOverSound.setVolume(0,5f);
 
-        //Random Gap and Start Points
+        //Random Start Point
         rand = new Random();
-        position = rand.nextInt(PLAYERCOUNT+1);
+        //position = rand.nextInt(PLAYERCOUNT+1);
         positionattaque = rand.nextInt(PLAYERCOUNT+1);
 
         //never start in front of the gap
+        /*
         while(positionattaque==position) {
             positionattaque = rand.nextInt(PLAYERCOUNT+1);
         }
+        */
 
         //Draw amount of remaining lives indicator (ball texture)
         lifeArray = new Array<Texture>(LIVES);
@@ -124,12 +126,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
                 teamA.add(new Player(100 * (i + 1), 300 - (i - positionattaque) * 100));
                 teamA.get(i).hasBall = false;
             }
-            if(i!=position) {
-                teamB.add(new EnnemyPlayer(100*(i+1), 700, true));
-            }
-            if(i==position) {
-                teamB.add(new EnnemyPlayer(100*(i+1), 700, false));
-            }
+            teamB.add(new EnnemyPlayer(100*(i+1), 700, true));
         }
 
         //Create the Ball in front of the Random starting position
@@ -341,7 +338,17 @@ public class PlayState extends State implements GestureDetector.GestureListener 
             if(teamA.get(ruckingplayer).force>=10) {
                 if(!ruckresolved) {
                     ruckresolved = true;
-                    if (rugbytouch.rugbysave.getBoolean("FxOn")) {
+                    position = rand.nextInt(PLAYERCOUNT+1);
+                    while (position == ruckingplayer) {
+                        position = rand.nextInt(PLAYERCOUNT+1);
+                    }
+                    if(position!=0) {
+                        teamB.set(position, new EnnemyPlayer(100 * (position + 1), Math.round(teamB.get(0).getPosition().y), false));
+                    }
+                    if (position == 0) {
+                        teamB.set(position, new EnnemyPlayer(100 * (position + 1), Math.round(teamB.get(1).getPosition().y), false));
+                    }
+                        if (rugbytouch.rugbysave.getBoolean("FxOn")) {
                         ruckOverSound.play();
                     }
                 }
