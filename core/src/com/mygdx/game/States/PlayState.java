@@ -87,7 +87,8 @@ public class PlayState extends State implements GestureDetector.GestureListener 
         }
 
         //TODO find a way to zoom out of the field and have a bigger bg image
-        cam.setToOrtho(false, rugbytouch.WIDTH, rugbytouch.HEIGHT);
+        cam.setToOrtho(false, Math.round(rugbytouch.WIDTH/1.2), Math.round(rugbytouch.HEIGHT/1.2));
+        //cam.setToOrtho(false, rugbytouch.WIDTH, rugbytouch.HEIGHT);
         background = new Texture("terrain.png");
 
         //simple Game Over Splash Screen
@@ -113,7 +114,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
         teamB = new Array<EnnemyPlayer>(PLAYERCOUNT);
 
         //Fill the teams with players
-        //Team B forms a LIne
+        //Team B forms a Line
         //Team A is an arrow with the tip at the random start position
 
         for(int i=0; i<=PLAYERCOUNT; i++) {
@@ -165,11 +166,12 @@ public class PlayState extends State implements GestureDetector.GestureListener 
             for (int i = 0; i <= PLAYERCOUNT; i++) {
                 //Move them around
                 teamA.get(i).update(dt);
+
                 if(teamA.get(i).isRucking)  {
                     if(teamA.get(i).force < 10) {
                         //TODO change difficulty settings
                         teamA.get(i).force = teamA.get(i).force - difficulty * dt;
-                        System.out.println(teamA.get(i).force);
+                        //System.out.println(teamA.get(i).force);
                     }
                     if(teamA.get(i).force<1) {
                         if (rugbytouch.rugbysave.getBoolean("FxOn"))
@@ -217,7 +219,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
                     teamA.get(i).hasBall = true;
 
                     //When player i has the ball, player i+1 and i-1 or i+2 and i-2 stop holding it
-                    //TODO improve thhis code using array funtions ? of find a way to solve the "sticky ball" that allows for changing the ball older on calling the Pass() method.
+                    //TODO improve thhis code using array funtions ? of find a way to solve the "sticky ball" that allows for changing the ball holder on calling the Pass() method.
                     if(i>1) {
                         teamA.get(i - 1).hasBall = false;
                         teamA.get(i-2).hasBall = false;
@@ -234,13 +236,16 @@ public class PlayState extends State implements GestureDetector.GestureListener 
                     ball.setVelocity(new Vector3(0, 0, 0));
                 }
 
-                // Check if ennemy players touches the ball, resulting in a loss of life ahndled by the deadball routine below
+/*
+                // Check if ennemy players touches the ball, resulting in a loss of life handled by the deadball routine below
                 if(teamB.get(i).collide(ball.getBounds()))
                 {
-//                    ball.dead = true;
+                    ball.dead = true;
                 }
 
-                // Handles collision between player and the ennemy facing him
+*/
+
+               // Handles collision between player and the ennemy facing him
                 //TODO imprive with a method to detect collision with any other player to allow for horizontal movement of players.
                 if (teamA.get(i).collide(teamB.get(i).getBounds())) {
 
@@ -315,7 +320,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
     @Override
     public void render(SpriteBatch sb) {
 
-        //Draw everithing centered on the ball.
+        //Draw everything centered on the ball.
         sb.setProjectionMatrix(cam.combined);
         sb.begin();
 
@@ -417,7 +422,6 @@ public class PlayState extends State implements GestureDetector.GestureListener 
     }
 
     //Handle TAP to modify the player's vertical movement calling the 'charge' or 'slowdown' methods
-    //TODO use those to implement "ruck" states that resolve in loss of ball or ability to go through and pass.
     @Override
     public boolean tap(float x, float y, int count, int button) {
 
@@ -429,7 +433,7 @@ public class PlayState extends State implements GestureDetector.GestureListener 
             if(teamA.get(i).isRucking) {
                 //Tap to oppose the ennemy's strength
                 teamA.get(i).force++;
-                System.out.println(teamA.get(i).force);
+                //System.out.println(teamA.get(i).force);
             }
             else if (teamA.get(i).hasBall) {
                 if(!teamA.get(i).isCharging) {
@@ -449,7 +453,6 @@ public class PlayState extends State implements GestureDetector.GestureListener 
     }
 
     //Handle fling to pass the ball. "rapid" fling allows for a long pass (passe sautée in french) short fling for a simple pass. Pass can go left or right depending on the direction of the fling.
-    //TODO : handle vertical fings to allow for "kicks over defense"
 
     @Override
     public boolean fling(float velocityX, float velocityY, int button) {
@@ -512,14 +515,31 @@ public class PlayState extends State implements GestureDetector.GestureListener 
                                 teamA.get(i+1).hasBall = false;
                             }
                         }
-                        else {
-                            //no horizontal direction = no pass
-                            //TODO handle drop kicks here
-                        }
                     }
                 }
             }
             }
+        else {
+            if(velocityY<0) {
+            for (int i = 0; i <= PLAYERCOUNT; i++) {
+                //ONly the ball carrier can pass it. A rucking player can only pass after winning the ruck.
+                if (teamA.get(i).hasBall && (teamA.get(i).force > 10 || !teamA.get(i).isRucking)) {
+                    //Before starting the ball movement, we must end collision events with the player by setting it's bounds temporarly to an empty rectangle.
+                    //TODO find a better way to pass the ball and keep player "solid" probably using box2d
+                    isRuck = false;
+                    forceArray.clear();
+                    ruckresolved = false;
+                    teamA.get(i).setBounds(new Rectangle(0, 0, 0, 0));
+                    if (!teamA.get(i).plaqued) {
+                        //fling upwards to kick the ball.
+                            teamA.get(i).hasBall = false;
+                            ball.kick(teamA.get(i).isCharging, ((i == PLAYERCOUNT) || (i == PLAYERCOUNT-1)));
+                            System.out.println("kick");
+                        }
+                    }
+                }
+            }
+        }
         return false;
     }
 

@@ -71,6 +71,37 @@ public class Ball {
         bounds.setPosition(position.x, position.y);
     }
 
+    public void kick(boolean charging, boolean islastright) {
+        /*Kicking the ball above player line to the next player on the left (unless called by the last player on the left*/
+
+        if(rugbytouch.rugbysave.getBoolean("FxOn"))
+            passSound.play(0.5f);
+
+        if(!islastright) {
+            if(!charging) {
+                velocity.y = 450;
+                this.setGRAVITY(-5);
+                this.setMOVEMENT(35);
+            }
+            else {
+                velocity.y = 500;
+                this.setGRAVITY(-5);
+                this.setMOVEMENT(75);
+            }
+        }
+        else {
+            if(!charging) {
+                velocity.y = 450;
+                this.setGRAVITY(-5);
+                this.setMOVEMENT(-50);
+            }
+            else {
+                velocity.y = 500;
+                this.setGRAVITY(-5);
+                this.setMOVEMENT(-87);
+            }
+        }
+    }
     public void pass(boolean direction, boolean charging, boolean isSautee) {
 
         /*The pass is called by a player on the ball and the ball starts to move.
